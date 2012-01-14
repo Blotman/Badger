@@ -3,6 +3,8 @@ require("Platform/Controller")
 require("Platform/Mouse")
 require("Platform/Physics/PhysicsObject")
 
+require("Platform/UI/Pane")
+
 require("Protagonist")
 require("Antagonist")
 require("Floater")
@@ -32,6 +34,9 @@ function love.load(arg)
 	--g_world:Save( "test.txt" )
 	g_protagonist = Protagonist:New()
 	table.insert( g_world.children, g_protagonist )
+
+	g_testPane = Pane:New( nil, 0, 0, 250, 500 )
+	table.insert( g_world.children, g_testPane )
 
 	g_framebuffer = love.graphics.newFramebuffer( 1600, 900 )
 end
