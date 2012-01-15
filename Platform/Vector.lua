@@ -28,6 +28,13 @@ function Vector:add(a)
 	return self
 end
 
+function Vector:sub(a)
+	self.x = self.x - a.x
+	self.y = self.y - a.y
+	self.z = self.z - a.z
+	return self
+end
+
 function Vector:mul(a)
 	local otherType = type(a)
 	if otherType == "number" then

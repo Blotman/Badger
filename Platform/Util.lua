@@ -63,9 +63,14 @@ function PointRectIntersect( point_x, point_y, rect_x1, rect_y1, rect_x2, rect_y
 	return point_x >= rect_x1 and point_x <= rect_x2 and point_y >= rect_y1 and point_y <= rect_y2
 end
 
+function PointCircleIntersect( point_x, point_y, circle_x1, circle_y1, circle_radius )
+	return Vector:New(circle_x1, circle_y1):sub( Vector:New(point_x, point_y) ):len2() <= (circle_radius*circle_radius)
+end
+
 function RectRectIntersect( rect1_x1, rect1_y1, rect1_x2, rect1_y2, rect2_x1, rect2_y1, rect2_x2, rect2_y2 )
 	local function segmentIntersects( a_x1, a_x2, b_x1, b_x2 )
-		return a_x1 <= b_x1 and a_x2 >= b_x2 or a_x1 >= b_x1 and a_x2 <= b_x2
+		return a_x1 <= b_x1 and a_x2 >= b_x1 or a_x1 <= b_x2 and a_x2 >= b_x2 or
+				b_x1 <= a_x1 and b_x2 >= a_x1 or b_x1 <= a_x2 and b_x2 >= a_x2
 	end
 	return segmentIntersects(rect1_x1, rect1_x2, rect2_x1, rect2_x2 ) and segmentIntersects(rect1_y1, rect1_y2, rect2_y1, rect2_y2 )
 end

@@ -18,16 +18,16 @@ end
 
 WorldPhysicsObject.quadDivide = {
 	[1] = function(xExtent1, yExtent1, xExtent2, yExtent2)
-		return xExtent1, yExtent1, xExtent2 / 2.0, yExtent2 / 2.0
+		return xExtent1, yExtent1, (xExtent1 + xExtent2) / 2.0, (yExtent1 + yExtent2) / 2.0
 	end,
 	[2] = function(xExtent1, yExtent1, xExtent2, yExtent2)
-		return xExtent2 / 2.0, yExtent1, xExtent2, yExtent2 / 2.0
+		return (xExtent1 + xExtent2) / 2.0, yExtent1, xExtent2, (yExtent1 + yExtent2) / 2.0
 	end,
 	[3] = function(xExtent1, yExtent1, xExtent2, yExtent2)
-		return xExtent2 / 2.0, yExtent2 / 2.0, xExtent2, yExtent2
+		return (xExtent1 + xExtent2) / 2.0, (yExtent1 + yExtent2) / 2.0, xExtent2, yExtent2
 	end,
 	[4] = function(xExtent1, yExtent1, xExtent2, yExtent2)
-		return xExtent1, yExtent2 / 2.0, xExtent2 / 2.0, yExtent2
+		return xExtent1, (yExtent1 + yExtent2) / 2.0, (xExtent1 + xExtent2) / 2.0, yExtent2
 	end,
 }
 	
@@ -51,32 +51,25 @@ end
 function WorldPhysicsObject:VisitPointInQuadNode( node, x, y )
 	local visitedObjects = nil
 	if PointRectIntersect( x, y, node.xExtent1, node.yExtent1, node.xExtent2, node.yExtent2 ) then
-	print( x, y, node.xExtent1, node.yExtent1, node.xExtent2, node.yExtent2 )
 		if #node > 0 then
 			for i, childNode in ipairs(node) do
 				visitedObjects = self:VisitPointInQuadNode( childNode, x, y ) or visitedObjects
 			end
 		else
 			visitedObjects = node.objects
-			for i, j in pairs(visitedObjects) do
-			print( i.gameObject.name )
-			end
 		end
 	end
 	return visitedObjects
 end
 
-function WorldPhysicsObject:VisitPoint( x, y )
-	local visitedObjects = self:VisitPointInQuadNode( self.quadTree, x, y )
-	return visitedObjects
-end
-
 function WorldPhysicsObject:PointCast( x, y )
-	local vistedObjects = self:VisitPoint( x, y )
+	local vistedObjects = self:VisitPointInQuadNode( self.quadTree, x, y )
 
 	local foundObject = nil
 	for object, _ in pairs( vistedObjects ) do
-		if object.physicsObject and object.physicsObject:PointCast( x, y ) then
+	print( "test 1" )
+		if object:PointCast( x, y ) then
+		print( "test 2" )
 			foundObject = object
 			break
 		end

@@ -72,3 +72,12 @@ function PhysicsObject:TrimQuadNodes()
 	end
 	self.quadNodes2 = self.quadNodes
 end
+
+function PhysicsObject:GetExtents()
+	local gameObjectPosition = self.gameObject.position
+	return gameObjectPosition.x + self.xExtent1, gameObjectPosition.y + self.yExtent1, gameObjectPosition.x + self.xExtent2, gameObjectPosition.y + self.yExtent2
+end
+
+function PhysicsObject:PointCast( x, y )
+	return PointRectIntersect( x, y, self:GetExtents() )
+end
