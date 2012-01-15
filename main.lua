@@ -1,6 +1,7 @@
 require("Platform/Util")
 require("Platform/Controller")
 require("Platform/Mouse")
+require("Platform/World")
 require("Platform/Physics/PhysicsObject")
 
 require("Platform/UI/Pane")
@@ -9,36 +10,44 @@ require("Protagonist")
 require("Antagonist")
 require("Floater")
 
-function love.load(arg)
-	love.graphics.setMode( 1600, 900, false, 0 )
-	------------------------------------------------------
-	--[[
-	g_world = GameObject:New()
+g_screenWidth = 1600
+g_screenHeight = 900
+
+function LoadTestWorld()
+	local world = World:New( nil, 0, 0, g_screenWidth, g_screenHeight )
 	for i=1,20 do
-		table.insert(g_world.children, Floater:New())
+		world:AddChild(Floater:New())
 	end
 	g_antagonist = Antagonist:New()
-	g_antagonist.position.x = 800
-	g_antagonist.position.y = 450
+	g_antagonist.position.x = g_screenWidth / 2
+	g_antagonist.position.y = g_screenHeight / 2
 	g_antagonist.physicsObject.velocity.y = 400
 	g_antagonist.physicsObject.friction = 0
-	table.insert(g_world.children, g_antagonist)
-	g_world:Save("Wubba.txt")
-	--]]
-	
+
+	world:AddChild(g_antagonist)
+
+	return world
+end
+
+function love.load(arg)
+	love.graphics.setMode( g_screenWidth, g_screenHeight, false, 0 )
+	------------------------------------------------------
+
+	g_world = LoadTestWorld()
+	--g_world:Save("Wubba.txt")
 	-- #####################################################
-	
-	g_world = Class.InstantiateFromFile("Wubba.txt")
+
+	--g_world = Class.InstantiateFromFile("Wubba.txt")
 	
 	-------------------------------------------------------
 	--g_world:Save( "test.txt" )
 	g_protagonist = Protagonist:New()
-	table.insert( g_world.children, g_protagonist )
+	g_world:AddChild( g_protagonist )
 
 	g_testPane = Pane:New( nil, 0, 0, 250, 500 )
-	table.insert( g_world.children, g_testPane )
+	g_world:AddChild( g_testPane )
 
-	g_framebuffer = love.graphics.newFramebuffer( 1600, 900 )
+	g_framebuffer = love.graphics.newFramebuffer( g_screenWidth, g_screenHeight )
 end
 
 function love.keypressed(key, unicode)
@@ -62,7 +71,7 @@ end
 function love.mousepressed( x, y, button )
 	Mouse.ButtonState[button] = true
 	if button == "l" then
-		local temp = g_world:ObjectsAtPoint( x, y )
+		local temp = g_world.physicsObject:PointCast( x, y )
 		print( temp )
 	end
 end

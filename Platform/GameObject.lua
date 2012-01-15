@@ -8,6 +8,18 @@ function GameObject:__init( strName, vPos, physicsObject )
 	self.position = vPos or Vector:New()
 	self.physicsObject = physicsObject
 	self.children = {}
+	self.world = nil
+end
+
+function GameObject:SetWorld( worldObject )
+	self.world = worldObject
+	for i, child in ipairs( self.children ) do
+		child:SetWorld( worldObject )
+	end
+end
+
+function GameObject:AddChild( child )
+	table.insert(self.children, child)
 end
 
 function GameObject:Update(dt)

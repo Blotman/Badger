@@ -8,6 +8,7 @@ function PhysicsObject:__init( gameObject )
 	self.acceleration = Vector:New(0, 0, 0)
 	self.maxSpeed = -1
 	self.friction = 0
+	self.quadNodes = {}
 end
 
 function PhysicsObject:Update( dt )
