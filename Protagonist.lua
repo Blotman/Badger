@@ -23,5 +23,9 @@ function Protagonist:Update( dt )
 end
 
 function Protagonist:Draw()
-	love.graphics.circle("fill", self.position.x, self.position.y, self.physicsObject.radius)
+	love.graphics.push()
+	love.graphics.translate( self.position.x, self.position.y )
+	love.graphics.setColor( 255, 128, 128 )
+	love.graphics.circle("fill", 0, 0, self.physicsObject.radius)
+	love.graphics.pop()
 end

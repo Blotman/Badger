@@ -1,10 +1,11 @@
 require("Platform/Util")
 require("Platform/Controller")
 require("Platform/Mouse")
+require("Platform/Editor")
 require("Platform/World")
 require("Platform/Physics/PhysicsObject")
 
-require("Platform/UI/Pane")
+require("Platform/UI/PropertiesPane")
 
 require("Protagonist")
 require("Antagonist")
@@ -34,6 +35,7 @@ function love.load(arg)
 	------------------------------------------------------
 
 	g_world = LoadTestWorld()
+	g_editor = Editor:New( nil, g_world, 0, 0, g_screenWidth, g_screenHeight )
 	--g_world:Save("Wubba.txt")
 	-- #####################################################
 
@@ -44,7 +46,7 @@ function love.load(arg)
 	g_protagonist = Protagonist:New()
 	g_world:AddChild( g_protagonist )
 
-	g_testPane = Pane:New( nil, 0, 0, 250, 500 )
+	g_testPane = PropertiesPane:New( nil, 0, 0, 250, 500 )
 	g_world:AddChild( g_testPane )
 
 	g_framebuffer = love.graphics.newFramebuffer( g_screenWidth, g_screenHeight )
@@ -71,19 +73,18 @@ end
 function love.mousepressed( x, y, button )
 	Mouse.ButtonState[button] = true
 	if button == "l" then
-		g_selectedObject = g_world.physicsObject:PointCast( x, y )
-		if g_selectedObject then
-			g_mouseClicked = Vector:New( x, y )
-			g_objectClicked = Vector:New( g_selectedObject.gameObject.position.x, g_selectedObject.gameObject.position.y )
-		end
-		print( g_selectedObject )
+		local selectedPhysicsObject = g_world.physicsObject:PointCast( x, y )
+		local selectedGameObject = selectedPhysicsObject and selectedPhysicsObject.gameObject
+		g_editor:SelectObject( selectedGameObject )
+		g_editor:HoldObject( selectedGameObject, x, y )
+		g_testPane:SelectObject( selectedGameObject )
 	end
 end
 
 function love.mousereleased( x, y, button )
 	Mouse.ButtonState[button] = false
 	if button == "l" then
-		g_selectedObject = false
+		g_editor:ReleaseObject( x, y )
 	end
 end
 
@@ -92,19 +93,14 @@ function love.update(dt)
 												(Controller.KeyState.down and 1.0 or 0.0) - (Controller.KeyState.up and 1.0 or 0.0), 0.0 )
 	g_protagonist.physicsObject.acceleration:setLength(g_protagonist.physicsObject.friction * 2)
 
-	if g_selectedObject then
-		local mouseDelta = Vector:New( love.mouse.getPosition() )
-		mouseDelta:sub(g_mouseClicked)
-		g_selectedObject.gameObject.position:set( g_objectClicked.x, g_objectClicked.y )
-		g_selectedObject.gameObject.position:add( mouseDelta )
-	end
-
+	g_editor:Update(dt)
 	g_world:Update(dt)
 end
 
 function love.draw()
 	love.graphics.setRenderTarget( g_framebuffer )
 	g_world:Draw()
+	g_editor:Draw()
 
 	love.graphics.setRenderTarget()
 	love.graphics.draw(g_framebuffer, 0, 0, 0, 1, 1)

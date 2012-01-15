@@ -24,14 +24,12 @@ function Pane:Update(dt)
 end
 
 function Pane:Draw()
-	local x1 = self.position.x
-	local x2 = self.position.x + self.width
-	local y1 = self.position.y
-	local y2 = self.position.y + self.height
-	love.graphics.polygon("fill", {	x1, y1,
-									x2, y1,
-									x2, y2,
-									x1, y2})
-									
-	self.physicsObject:DrawQuadNodes()
+	love.graphics.push()
+	love.graphics.translate( self.position.x, self.position.y )
+	love.graphics.setColor( 225, 225, 225 )
+	love.graphics.polygon("fill", {	0, 0,
+									self.width, 0,
+									self.width, self.height,
+									0, self.height})
+	love.graphics.pop()
 end
