@@ -37,9 +37,6 @@ function GameObject:Draw()
 	end
 end
 
---function GameObject:ObjectsAtPoint( x, y )
---end
-
 function GameObject:SerializeAttributes(depth)
 	local attributesTable = {}
 	SerializeHelper( self, attributesTable, {"className", "name", "position", "physicsObject"}, depth)

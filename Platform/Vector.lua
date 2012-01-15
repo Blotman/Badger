@@ -100,6 +100,12 @@ function Vector:cross(other)
 	return self.x * other.y - self.y * other.x
 end
 
+function Vector:equals(other)
+	return self.x == other.x and
+			self.y == other.y and
+			self.z == other.z
+end
+
 function Vector:Serialize(depth)
 	return ToString(self, depth)
 end

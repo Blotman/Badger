@@ -9,6 +9,11 @@ function PhysicsObject:__init( gameObject )
 	self.maxSpeed = -1
 	self.friction = 0
 	self.quadNodes = {}
+	self.quadNodes2 = {}
+	self.xExtent1 = -5
+	self.xExtent2 = 5
+	self.yExtent1 = -5
+	self.yExtent2 = 5
 end
 
 function PhysicsObject:Update( dt )
@@ -32,6 +37,22 @@ function PhysicsObject:Update( dt )
 	end
 
 	self.gameObject.position:add( self.velocity:_mul( dt ) )
+
+	if self.gameObject.world then
+		local positionChanged = false
+		if self.lastPosition == nil then
+			self.lastPosition = Vector:New()
+			positionChanged = true
+		elseif not self.lastPosition:equals(self.gameObject.position) then
+			positionChanged = true
+			self.lastPosition:set(self.gameObject.position.x, self.gameObject.position.y, self.gameObject.position.z)
+		end
+		if positionChanged then
+			self.quadNodes = {}
+			self.gameObject.world.physicsObject:ObjectMoved( self )
+			self:TrimQuadNodes()
+		end
+	end
 end
 
 function PhysicsObject:Serialize(depth)
@@ -41,4 +62,13 @@ function PhysicsObject:Serialize(depth)
 	table.insert( serialized, "\n" .. Tab(depth) .. "}" )
 
 	return table.concat(serialized)
+end
+
+function PhysicsObject:TrimQuadNodes()
+	for node, _ in pairs( self.quadNodes2 ) do
+		if self.quadNodes[node] == nil then
+			self.gameObject.world.physicsObject:RemoveObjectFromQuadNode( node, self )
+		end
+	end
+	self.quadNodes2 = self.quadNodes
 end

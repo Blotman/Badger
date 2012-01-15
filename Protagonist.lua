@@ -9,6 +9,10 @@ function Protagonist:__init( strName )
 
 	self.physicsObject.maxSpeed = 400
 	self.physicsObject.friction = 2000
+	self.physicsObject.xExtent1 = -self.physicsObject.radius
+	self.physicsObject.xExtent2 = self.physicsObject.radius
+	self.physicsObject.yExtent1 = -self.physicsObject.radius
+	self.physicsObject.yExtent2 = self.physicsObject.radius
 end
 
 function Protagonist:Update( dt )
@@ -20,4 +24,11 @@ end
 
 function Protagonist:Draw()
 	love.graphics.circle("fill", self.position.x, self.position.y, self.physicsObject.radius)
+	
+	for node, _ in pairs( self.physicsObject.quadNodes ) do
+		love.graphics.polygon("line", {	node.xExtent1, node.yExtent1,
+										node.xExtent2, node.yExtent1,
+										node.xExtent2, node.yExtent2,
+										node.xExtent1, node.yExtent2})
+	end
 end

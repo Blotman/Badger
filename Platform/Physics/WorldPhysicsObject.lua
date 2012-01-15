@@ -32,23 +32,42 @@ WorldPhysicsObject.quadDivide = {
 }
 	
 function WorldPhysicsObject:PopulateTreeNode( node, depth, xExtent1, yExtent1, xExtent2, yExtent2 )
-	for i, divideFunc in ipairs(WorldPhysicsObject.quadDivide) do
-		local x1, y1, x2, y2 = divideFunc(xExtent1, yExtent1, xExtent2, yExtent2)
-		local newNode = {
-			xExtent1 = x1, yExtent1 = y1,
-			xExtent2 = x2, yExtent2 = y2,
-			objects = {},
-		}
-		node[i] = newNode
-		if depth > 1 then
+	node.xExtent1 = xExtent1
+	node.yExtent1 = yExtent1
+	node.xExtent2 = xExtent2
+	node.yExtent2 = yExtent2
+	node.objects = {}
+
+	if depth > 1 then
+		for i, divideFunc in ipairs(WorldPhysicsObject.quadDivide) do
+			local x1, y1, x2, y2 = divideFunc(xExtent1, yExtent1, xExtent2, yExtent2)
+			local newNode = {}
+			node[i] = newNode
 			self:PopulateTreeNode( newNode, depth - 1, x1, y1, x2, y2 )
 		end
 	end
 end
 
-function WorldPhysicsObject:VisitPoint( x, y )
-	local visitedObjects = {}
+function WorldPhysicsObject:VisitPointInQuadNode( node, x, y )
+	local visitedObjects = nil
+	if PointRectIntersect( x, y, node.xExtent1, node.yExtent1, node.xExtent2, node.yExtent2 ) then
+	print( x, y, node.xExtent1, node.yExtent1, node.xExtent2, node.yExtent2 )
+		if #node > 0 then
+			for i, childNode in ipairs(node) do
+				visitedObjects = self:VisitPointInQuadNode( childNode, x, y ) or visitedObjects
+			end
+		else
+			visitedObjects = node.objects
+			for i, j in pairs(visitedObjects) do
+			print( i.gameObject.name )
+			end
+		end
+	end
+	return visitedObjects
+end
 
+function WorldPhysicsObject:VisitPoint( x, y )
+	local visitedObjects = self:VisitPointInQuadNode( self.quadTree, x, y )
 	return visitedObjects
 end
 
@@ -64,4 +83,28 @@ function WorldPhysicsObject:PointCast( x, y )
 	end
 
 	return foundObject
+end
+
+function WorldPhysicsObject:AddObjectToQuadNode( node, physicsObject, x1, y1, x2, y2 )
+	if RectRectIntersect( node.xExtent1, node.yExtent1, node.xExtent2, node.yExtent2, x1, y1, x2, y2 ) then
+		node.objects[physicsObject] = true
+		physicsObject.quadNodes[node] = true
+		for i, childNode in ipairs(node) do
+			self:AddObjectToQuadNode( childNode, physicsObject, x1, y1, x2, y2 )
+		end
+	end
+end
+
+function WorldPhysicsObject:RemoveObjectFromQuadNode( node, object )
+	node.objects[object] = nil
+end
+
+function WorldPhysicsObject:ObjectMoved( physicsObject )
+	local gameObjectPosition = physicsObject.gameObject.position
+	local x1 = gameObjectPosition.x + physicsObject.xExtent1
+	local y1 = gameObjectPosition.y + physicsObject.yExtent1
+	local x2 = gameObjectPosition.x + physicsObject.xExtent2
+	local y2 = gameObjectPosition.y + physicsObject.yExtent2
+
+	self:AddObjectToQuadNode( self.quadTree, physicsObject, x1, y1, x2, y2 )
 end

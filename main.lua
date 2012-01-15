@@ -15,7 +15,7 @@ g_screenHeight = 900
 
 function LoadTestWorld()
 	local world = World:New( nil, 0, 0, g_screenWidth, g_screenHeight )
-	for i=1,20 do
+	--[[for i=1,20 do
 		world:AddChild(Floater:New())
 	end
 	g_antagonist = Antagonist:New()
@@ -24,7 +24,7 @@ function LoadTestWorld()
 	g_antagonist.physicsObject.velocity.y = 400
 	g_antagonist.physicsObject.friction = 0
 
-	world:AddChild(g_antagonist)
+	world:AddChild(g_antagonist)--]]
 
 	return world
 end

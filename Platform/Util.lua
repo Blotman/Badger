@@ -58,3 +58,14 @@ function SerializeHelper( self, appendTable, attributeList, depth )
 		end
 	end
 end
+
+function PointRectIntersect( point_x, point_y, rect_x1, rect_y1, rect_x2, rect_y2 )
+	return point_x >= rect_x1 and point_x <= rect_x2 and point_y >= rect_y1 and point_y <= rect_y2
+end
+
+function RectRectIntersect( rect1_x1, rect1_y1, rect1_x2, rect1_y2, rect2_x1, rect2_y1, rect2_x2, rect2_y2 )
+	local function segmentIntersects( a_x1, a_x2, b_x1, b_x2 )
+		return a_x1 <= b_x1 and a_x2 >= b_x2 or a_x1 >= b_x1 and a_x2 <= b_x2
+	end
+	return segmentIntersects(rect1_x1, rect1_x2, rect2_x1, rect2_x2 ) and segmentIntersects(rect1_y1, rect1_y2, rect2_y1, rect2_y2 )
+end
