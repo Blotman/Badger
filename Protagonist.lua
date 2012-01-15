@@ -24,16 +24,4 @@ end
 
 function Protagonist:Draw()
 	love.graphics.circle("fill", self.position.x, self.position.y, self.physicsObject.radius)
-	
-	for node, _ in pairs( self.physicsObject.quadNodes ) do
-		love.graphics.polygon("line", {	node.xExtent1, node.yExtent1,
-										node.xExtent2, node.yExtent1,
-										node.xExtent2, node.yExtent2,
-										node.xExtent1, node.yExtent2})
-	end
-	
-	love.graphics.polygon("line", {	self.position.x + self.physicsObject.xExtent1, self.position.y + self.physicsObject.yExtent1,
-									self.position.x + self.physicsObject.xExtent2, self.position.y + self.physicsObject.yExtent1,
-									self.position.x + self.physicsObject.xExtent2, self.position.y + self.physicsObject.yExtent2,
-									self.position.x + self.physicsObject.xExtent1, self.position.y + self.physicsObject.yExtent2})
 end

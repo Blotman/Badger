@@ -55,6 +55,20 @@ function PhysicsObject:Update( dt )
 	end
 end
 
+function PhysicsObject:DrawQuadNodes()
+	for node, _ in pairs( self.quadNodes ) do
+		love.graphics.polygon("line", {	node.xExtent1, node.yExtent1,
+										node.xExtent2, node.yExtent1,
+										node.xExtent2, node.yExtent2,
+										node.xExtent1, node.yExtent2})
+	end
+	
+	love.graphics.polygon("line", {	self.gameObject.position.x + self.xExtent1, self.gameObject.position.y + self.yExtent1,
+									self.gameObject.position.x + self.xExtent2, self.gameObject.position.y + self.yExtent1,
+									self.gameObject.position.x + self.xExtent2, self.gameObject.position.y + self.yExtent2,
+									self.gameObject.position.x + self.xExtent1, self.gameObject.position.y + self.yExtent2})
+end
+
 function PhysicsObject:Serialize(depth)
 	local serialized = {}
 	table.insert( serialized, "{" )

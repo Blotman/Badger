@@ -3,15 +3,15 @@ require("Platform/Util")
 class "Vector"
 
 function Vector:__init(x, y, z)
-    self.x = x or 0
-    self.y = y or 0
-    self.z = z or 0
+	self.x = x or 0
+	self.y = y or 0
+	self.z = z or 0
 end
 
 function Vector:set(x, y, z)
-	self.x = x
-	self.y = y
-	self.z = z
+	self.x = x or 0
+	self.y = y or 0
+	self.z = z or 0
 	return self
 end
 

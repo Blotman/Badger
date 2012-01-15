@@ -67,9 +67,7 @@ function WorldPhysicsObject:PointCast( x, y )
 
 	local foundObject = nil
 	for object, _ in pairs( vistedObjects ) do
-	print( "test 1" )
 		if object:PointCast( x, y ) then
-		print( "test 2" )
 			foundObject = object
 			break
 		end
