@@ -101,7 +101,8 @@ function love.draw()
 	love.graphics.setRenderTarget( g_framebuffer )
 	g_world:Draw()
 	g_editor:Draw()
-
 	love.graphics.setRenderTarget()
+
+	love.graphics.setColor( 255, 255, 255 )
 	love.graphics.draw(g_framebuffer, 0, 0, 0, 1, 1)
 end

@@ -18,5 +18,9 @@ function Floater:Update( dt )
 end
 
 function Floater:Draw()
-	love.graphics.circle("fill", self.position.x, self.position.y, 2)
+	love.graphics.push()
+	love.graphics.translate( self.position.x, self.position.y )
+	love.graphics.setColor( 255, 255, 255 )
+	love.graphics.circle("fill", 0, 0, 2)
+	love.graphics.pop()
 end

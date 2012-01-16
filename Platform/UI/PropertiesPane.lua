@@ -8,10 +8,6 @@ function PropertiesPane:__init( strName, x, y, width, height )
 	self.selectedObect = nil
 end
 
-function PropertiesPane:Update(dt)
-	PropertiesPane.super.Update(self, dt)
-end
-
 function PropertiesPane:Draw()
 	PropertiesPane.super.Draw(self)
 	if self.selectedObect then
@@ -23,7 +19,6 @@ function PropertiesPane:Draw()
 		table.insert( propertiesBuilder, string.format( "Name: %s\n", self.selectedObect.name ) )
 		table.insert( propertiesBuilder, string.format( "Position: %d, %d, %d\n", self.selectedObect.position.x, self.selectedObect.position.y, self.selectedObect.position.z ) )
 		love.graphics.print( table.concat(propertiesBuilder), 0, 0 )
-		love.graphics.setColor( 255, 255, 255 )
 		love.graphics.pop()
 	end
 end

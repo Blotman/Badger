@@ -5,7 +5,7 @@ class("Antagonist"):Extends( GameObject )
 
 function Antagonist:__init( strName )
 	local vPos = Vector:New( math.random() * 1600, math.random() * 900, 0 )
-	Antagonist.super.__init(self, strName, vPos, PhysicsObject:New(self))
+	Antagonist.super.__init(self, strName, vPos, CirclePhysicsObject:New(self, 50))
 
 	self.physicsObject.maxSpeed = 400
 	self.physicsObject.friction = 2000
@@ -19,5 +19,9 @@ function Antagonist:Update( dt )
 end
 
 function Antagonist:Draw()
-	love.graphics.circle("fill", self.position.x, self.position.y, 50)
+	love.graphics.push()
+	love.graphics.translate( self.position.x, self.position.y )
+	love.graphics.setColor( 0, 255, 255 )
+	love.graphics.circle("fill", 0, 0, self.physicsObject.radius)
+	love.graphics.pop()
 end

@@ -27,6 +27,7 @@ function Editor:Draw()
 		local selectedPhysicsObject = self.selectedObject.physicsObject
 		love.graphics.push()
 		love.graphics.translate( gameObjectPosition.x, gameObjectPosition.y )
+		love.graphics.setColor( 255, 255, 0 )
 		love.graphics.polygon("line", {	selectedPhysicsObject.xExtent1, selectedPhysicsObject.yExtent1,
 										selectedPhysicsObject.xExtent2, selectedPhysicsObject.yExtent1,
 										selectedPhysicsObject.xExtent2, selectedPhysicsObject.yExtent2,
