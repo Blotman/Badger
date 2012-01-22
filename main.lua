@@ -5,8 +5,6 @@ require("Platform/Editor")
 require("Platform/World")
 require("Platform/Physics/PhysicsObject")
 
-require("Platform/UI/PropertiesPane")
-
 require("Protagonist")
 require("Antagonist")
 require("Floater")
@@ -16,9 +14,9 @@ g_screenHeight = 900
 
 function LoadTestWorld()
 	local world = World:New( nil, 0, 0, g_screenWidth, g_screenHeight )
-	for i=1,20 do
+	--[[for i=1,20 do
 		world:AddChild(Floater:New())
-	end
+	end--]]
 	g_antagonist = Antagonist:New()
 	g_antagonist.position.x = g_screenWidth / 2
 	g_antagonist.position.y = g_screenHeight / 2
@@ -45,9 +43,6 @@ function love.load(arg)
 	--g_world:Save( "test.txt" )
 	g_protagonist = Protagonist:New()
 	g_world:AddChild( g_protagonist )
-
-	g_testPane = PropertiesPane:New( nil, 0, 0, 250, 500 )
-	g_world:AddChild( g_testPane )
 
 	g_framebuffer = love.graphics.newFramebuffer( g_screenWidth, g_screenHeight )
 end
@@ -77,7 +72,6 @@ function love.mousepressed( x, y, button )
 		local selectedGameObject = selectedPhysicsObject and selectedPhysicsObject.gameObject
 		g_editor:SelectObject( selectedGameObject )
 		g_editor:HoldObject( selectedGameObject, x, y )
-		g_testPane:SelectObject( selectedGameObject )
 	end
 end
 
@@ -101,6 +95,7 @@ function love.draw()
 	love.graphics.setRenderTarget( g_framebuffer )
 	g_world:Draw()
 	g_editor:Draw()
+
 	love.graphics.setRenderTarget()
 
 	love.graphics.setColor( 255, 255, 255 )

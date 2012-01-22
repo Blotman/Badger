@@ -74,3 +74,31 @@ function RectRectIntersect( rect1_x1, rect1_y1, rect1_x2, rect1_y2, rect2_x1, re
 	end
 	return segmentIntersects(rect1_x1, rect1_x2, rect2_x1, rect2_x2 ) and segmentIntersects(rect1_y1, rect1_y2, rect2_y1, rect2_y2 )
 end
+
+function RectCircleIntersect( rect_x1, rect_y1, rect_x2, rect_y2, circle_x, circle_y, circle_r )
+	local bottom = circle_y + circle_r
+	local top = circle_y - circle_r
+	local right = circle_x + circle_r
+	local left = circle_x - circle_r
+
+	local intersect = rect_x1 <= circle_x and rect_x2 >= circle_x and bottom >= rect_y1 and top <= rect_y2
+
+	if not intersect then
+		local rectVecs = {
+			Vector:New( rect_x1, rect_y1 ),
+			Vector:New( rect_x2, rect_y1 ),
+			Vector:New( rect_x2, rect_y2 ),
+			Vector:New( rect_x1, rect_y2 ) }
+		local circleVec = Vector:New( circle_x, circle_y )
+		local radius2 = circle_r * circle_r
+		for i, rectVec in ipairs(rectVecs) do
+			local displacementVec = circleVec:_sub( rectVec )
+			if displacementVec:len2() <= radius2 then
+				intersect = true
+				break
+			end
+		end
+	end
+
+	return intersect
+end

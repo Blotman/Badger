@@ -48,12 +48,12 @@ function WorldPhysicsObject:PopulateTreeNode( node, depth, xExtent1, yExtent1, x
 	end
 end
 
-function WorldPhysicsObject:VisitPointInQuadNode( node, x, y )
+function WorldPhysicsObject:VisitInQuadNode( node, intersectFunc, ... )
 	local visitedObjects = nil
-	if PointRectIntersect( x, y, node.xExtent1, node.yExtent1, node.xExtent2, node.yExtent2 ) then
+	if intersectFunc( node, ... ) then
 		if #node > 0 then
 			for i, childNode in ipairs(node) do
-				visitedObjects = self:VisitPointInQuadNode( childNode, x, y ) or visitedObjects
+				visitedObjects = self:VisitInQuadNode( childNode, intersectFunc, ... ) or visitedObjects
 			end
 		else
 			visitedObjects = node.objects
@@ -62,8 +62,35 @@ function WorldPhysicsObject:VisitPointInQuadNode( node, x, y )
 	return visitedObjects
 end
 
+function WorldPhysicsObject:VisitRadius( x, y, radius, ignoreTable )
+	local function circleIntersect( node, x, y, radius )
+		return RectCircleIntersect( node.xExtent1, node.yExtent1, node.xExtent2, node.yExtent2, x, y, radius )
+	end
+
+	local vistedObjects = self:VisitInQuadNode(self.quadTree, circleIntersect, x, y, radius) or {}
+	local foundObject = nil
+	for object, _ in pairs( vistedObjects ) do
+		if not ignoreTable[object] then
+			local x1 = object.gameObject.position.x + object.xExtent1
+			local y1 = object.gameObject.position.y + object.yExtent1
+			local x2 = object.gameObject.position.x + object.xExtent2
+			local y2 = object.gameObject.position.y + object.yExtent2
+			if RectCircleIntersect( x1, y1, x2, y2, x, y, radius ) then
+				foundObject = object
+				break
+			end
+		end
+	end
+
+	return foundObject
+end
+
 function WorldPhysicsObject:PointCast( x, y )
-	local vistedObjects = self:VisitPointInQuadNode( self.quadTree, x, y )
+	local function pointIntersect( node, x, y )
+		return PointRectIntersect( x, y, node.xExtent1, node.yExtent1, node.xExtent2, node.yExtent2 )
+	end
+
+	local vistedObjects = self:VisitInQuadNode( self.quadTree, pointIntersect, x, y )
 
 	local foundObject = nil
 	for object, _ in pairs( vistedObjects ) do

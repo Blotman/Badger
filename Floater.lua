@@ -1,11 +1,11 @@
 require("Platform/GameObject")
-require("Platform/Physics/PhysicsObject")
+require("Platform/Physics/CirclePhysicsObject")
 
 class "Floater":Extends( GameObject )
 
 function Floater:__init( strName )
 	local vPos = Vector:New( math.random() * 1600, math.random() * 900, 0 )
-	Floater.super.__init(self, strName, vPos, PhysicsObject:New(self))
+	Floater.super.__init(self, strName, vPos, CirclePhysicsObject:New(self, 5))
 
 	self.physicsObject.velocity:set( math.random() * 1000, 0, 0 )
 end
@@ -21,6 +21,6 @@ function Floater:Draw()
 	love.graphics.push()
 	love.graphics.translate( self.position.x, self.position.y )
 	love.graphics.setColor( 255, 255, 255 )
-	love.graphics.circle("fill", 0, 0, 2)
+	love.graphics.circle("fill", 0, 0, self.physicsObject.radius)
 	love.graphics.pop()
 end

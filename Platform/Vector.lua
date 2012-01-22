@@ -35,6 +35,10 @@ function Vector:sub(a)
 	return self
 end
 
+function Vector:_sub(a)
+	return Vector:New(	self.x - a.x, self.y - a.y, self.z - a.z )
+end
+
 function Vector:mul(a)
 	local otherType = type(a)
 	if otherType == "number" then
