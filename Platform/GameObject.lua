@@ -7,6 +7,7 @@ function GameObject:__init( strName, vPos, physicsObject )
 	self.name = strName
 	self.position = vPos or Vector:New()
 	self.physicsObject = physicsObject
+	self.physicsObject.position:set( self.position )
 	self.children = {}
 	self.world = nil
 end
@@ -25,6 +26,7 @@ end
 function GameObject:Update(dt)
 	if self.physicsObject ~= nil then
 		self.physicsObject:Update(dt)
+		self.position:set( self.physicsObject.position )
 	end
 	for _, child in ipairs(self.children) do
 		child:Update(dt)

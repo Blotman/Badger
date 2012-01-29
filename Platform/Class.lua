@@ -9,7 +9,21 @@ function Class.Define(name)
 	end
 
 	function newClass:New(...)
-		local classInstance = {className = self.name}
+		local classInstance = {}
+		classInstance.class = self
+		classInstance.IsA = function( self, classType )
+			local retVal = false
+			while classType do
+				if self.class == classType then
+					retVal = true
+					break
+				else
+					classType = classType.super
+				end
+			end
+			
+			return retVal
+		end
 		setmetatable(classInstance, {__index = newClass})
 
 		if classInstance.__init then
@@ -24,14 +38,14 @@ function Class.Define(name)
 end
 
 function Class.InstantiateFromTable(data)
-	local instancedObject = _G[data.className] and _G[data.className]:New()
+	local instancedObject = _G[data.class.name] and _G[data.class.name]:New()
 	if instancedObject.Deserialize then
 		instancedObject:Deserialize(data)
 	end
-	data.className = nil
+	data.class.name = nil
 
 	for i, j in pairs(data) do
-		if type(j) == "table" and j.className then
+		if type(j) == "table" and j.class.name then
 			instancedObject[i] = Class.InstantiateFromTable(j)
 		else
 			instancedObject[i] = j

@@ -71,10 +71,10 @@ function WorldPhysicsObject:VisitRadius( x, y, radius, ignoreTable )
 	local foundObject = nil
 	for object, _ in pairs( vistedObjects ) do
 		if not ignoreTable[object] then
-			local x1 = object.gameObject.position.x + object.xExtent1
-			local y1 = object.gameObject.position.y + object.yExtent1
-			local x2 = object.gameObject.position.x + object.xExtent2
-			local y2 = object.gameObject.position.y + object.yExtent2
+			local x1 = object.position.x + object.xExtent1
+			local y1 = object.position.y + object.yExtent1
+			local x2 = object.position.x + object.xExtent2
+			local y2 = object.position.y + object.yExtent2
 			if RectCircleIntersect( x1, y1, x2, y2, x, y, radius ) then
 				foundObject = object
 				break
@@ -118,11 +118,37 @@ function WorldPhysicsObject:RemoveObjectFromQuadNode( node, object )
 end
 
 function WorldPhysicsObject:ObjectMoved( physicsObject )
-	local gameObjectPosition = physicsObject.gameObject.position
+	local gameObjectPosition = physicsObject.position
 	local x1 = gameObjectPosition.x + physicsObject.xExtent1
 	local y1 = gameObjectPosition.y + physicsObject.yExtent1
 	local x2 = gameObjectPosition.x + physicsObject.xExtent2
 	local y2 = gameObjectPosition.y + physicsObject.yExtent2
 
 	self:AddObjectToQuadNode( self.quadTree, physicsObject, x1, y1, x2, y2 )
+end
+
+function WorldPhysicsObject:Update( dt )
+	self.super.Update( self, dt )
+
+	local rect_x1 = g_antagonist.position.x + g_antagonist.physicsObject.xExtent1
+	local rect_y1 = g_antagonist.position.y + g_antagonist.physicsObject.yExtent1
+	local rect_x2 = g_antagonist.position.x + g_antagonist.physicsObject.xExtent2
+	local rect_y2 = g_antagonist.position.y + g_antagonist.physicsObject.yExtent2
+	local circle_x = g_protagonist.position.x
+	local circle_y = g_protagonist.position.y
+	local circle_r = g_protagonist.physicsObject.radius
+
+	love.graphics.setColor( 255, 255, 0 )
+	love.graphics.rectangle('line', rect_x1, rect_y1, rect_x2 - rect_x1, rect_y2 - rect_y1)
+	
+	local ignoreTable = {}
+	ignoreTable[g_protagonist.physicsObject] = true
+	local foundObject = self:VisitRadius( circle_x, circle_y, circle_r, ignoreTable )
+	if foundObject == g_antagonist.physicsObject then
+		local displacement = g_antagonist.position:_sub(g_protagonist.position):normalize()
+		foundObject.velocity:mul(displacement)
+	--print(foundObject.gameObject.name)
+		--love.graphics.circle("line", circle_x, circle_y, circle_r)
+		
+	end
 end

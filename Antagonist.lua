@@ -14,8 +14,9 @@ end
 function Antagonist:Update( dt )
 	Antagonist.super.Update( self, dt )
 
-	self.position.x = (self.position.x > 1600 and 0) or (self.position.x < 0 and 1600) or self.position.x
-	self.position.y = (self.position.y > 900 and 0) or (self.position.y < 0 and 900) or self.position.y
+	self.physicsObject.position.x = (self.physicsObject.position.x > 1600 and 0) or (self.physicsObject.position.x < 0 and 1600) or self.physicsObject.position.x
+	self.physicsObject.position.y = (self.physicsObject.position.y > 900 and 0) or (self.physicsObject.position.y < 0 and 900) or self.physicsObject.position.y
+	self.position:set(self.physicsObject.position)
 end
 
 function Antagonist:Draw()

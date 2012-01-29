@@ -3,55 +3,81 @@ require("Platform/Util")
 class "Vector"
 
 function Vector:__init(x, y, z)
-	self.x = x or 0
-	self.y = y or 0
-	self.z = z or 0
+	if type(x) == "table" and x:IsA( Vector ) then
+		self.x = x.x or 0
+		self.y = x.y or 0
+		self.z = x.z or 0
+	else
+		self.x = x or 0
+		self.y = y or 0
+		self.z = z or 0
+	end
 end
 
 function Vector:set(x, y, z)
-	self.x = x or 0
-	self.y = y or 0
-	self.z = z or 0
-	return self
-end
-
-function Vector:setLength(length)
-	self:normalize_inplace()
-	self:mul(length)
-	return self
-end
-
-function Vector:add(a)
-	self.x = self.x + a.x
-	self.y = self.y + a.y
-	self.z = self.z + a.z
-	return self
-end
-
-function Vector:sub(a)
-	self.x = self.x - a.x
-	self.y = self.y - a.y
-	self.z = self.z - a.z
-	return self
-end
-
-function Vector:_sub(a)
-	return Vector:New(	self.x - a.x, self.y - a.y, self.z - a.z )
-end
-
-function Vector:mul(a)
-	local otherType = type(a)
-	if otherType == "number" then
-		self.x = self.x * a
-		self.y = self.y * a
-		self.z = self.z * a
+	if type(x) == "table" and x:IsA( Vector ) then
+		self.x = x.x or 0
+		self.y = x.y or 0
+		self.z = x.z or 0
+	else
+		self.x = x or 0
+		self.y = y or 0
+		self.z = z or 0
 	end
 	return self
 end
 
-function Vector:_mul(a)
-	local otherType = type(a)
-	local newVec = otherType == "number" and Vector:New( self.x * a, self.y * a, self.z * a )
+function Vector:setLength(length)
+	self:normalize()
+	self:mul(length)
+	return self
+end
+
+function Vector:add(x, y, z)
+	if type(x) == "table" and x:IsA( Vector ) then
+		self.x = self.x + x.x
+		self.y = self.y + x.y
+		self.z = self.z + x.z
+	else
+		self.x = self.x + (x or 0)
+		self.y = self.y + (y or 0)
+		self.z = self.z + (z or 0)
+	end
+	return self
+end
+
+function Vector:sub(x, y, z)
+	if type(x) == "table" and x:IsA( Vector ) then
+		self.x = self.x - x.x
+		self.y = self.y - x.y
+		self.z = self.z - x.z
+	else
+		self.x = self.x - (x or 0)
+		self.y = self.y - (y or 0)
+		self.z = self.z - (z or 0)
+	end
+	return self
+end
+
+function Vector:_sub( ... )
+	return Vector:New( self ):sub( ... )
+end
+
+function Vector:mul(x)
+	if type(x) == "table" and x:IsA( Vector ) then
+		self.x = self.x * x.x
+		self.y = self.y * x.y
+		self.z = self.z * x.z
+	else
+		self.x = self.x * x
+		self.y = self.y * x
+		self.z = self.z * x
+	end
+	return self
+end
+
+function Vector:_mul(x)
+	local newVec = (type(x) == "table" and x:IsA( Vector )) and Vector:New( self.x * x.x, self.y * x.y, self.z * x.z ) or Vector:New( self.x * x, self.y * x, self.z * x )
 	return newVec
 end
 
@@ -68,7 +94,7 @@ function Vector.dist(a, b)
 	return (b-a):len()
 end
 
-function Vector:normalize_inplace()
+function Vector:normalize()
 	local l = self:len()
 	if l ~= 0 then
 		self.x = self.x / l
@@ -76,10 +102,6 @@ function Vector:normalize_inplace()
 		self.z = self.z / l
 	end
 	return self
-end
-
-function Vector:normalized()
-	return self / self:len()
 end
 
 function Vector:rotate_inplace(phi)

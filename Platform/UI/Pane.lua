@@ -8,6 +8,9 @@ function Pane:__init( strName, x, y, width, height )
 	Pane.super.__init(self, strName, vPos, PhysicsObject:New(self) )
 	self.width = width
 	self.height = height
+	self.physicsObject.position.x = x
+	self.physicsObject.position.y = y
+	self.physicsObject.yExtent1 = 0
 	self.physicsObject.xExtent1 = 0
 	self.physicsObject.yExtent1 = 0
 	self.physicsObject.xExtent2 = width

@@ -4,6 +4,7 @@ class "PhysicsObject"
 
 function PhysicsObject:__init( gameObject )
 	self.gameObject = gameObject
+	self.position = Vector:New(0, 0, 0)
 	self.velocity = Vector:New(0, 0, 0)
 	self.acceleration = Vector:New(0, 0, 0)
 	self.maxSpeed = -1
@@ -14,6 +15,7 @@ function PhysicsObject:__init( gameObject )
 	self.xExtent2 = 5
 	self.yExtent1 = -5
 	self.yExtent2 = 5
+	self.collision = true
 end
 
 function PhysicsObject:Update( dt )
@@ -36,16 +38,16 @@ function PhysicsObject:Update( dt )
 		end
 	end
 
-	self.gameObject.position:add( self.velocity:_mul( dt ) )
+	self.position:add( self.velocity:_mul( dt ) )
 
-	if self.gameObject.world then
+	if self.gameObject.world and self.collision then
 		local positionChanged = false
 		if self.lastPosition == nil then
 			self.lastPosition = Vector:New()
 			positionChanged = true
-		elseif not self.lastPosition:equals(self.gameObject.position) then
+		elseif not self.lastPosition:equals(self.position) then
 			positionChanged = true
-			self.lastPosition:set(self.gameObject.position.x, self.gameObject.position.y, self.gameObject.position.z)
+			self.lastPosition:set( self.position )
 		end
 		if positionChanged then
 			self.quadNodes = {}
@@ -63,10 +65,10 @@ function PhysicsObject:DrawQuadNodes()
 										node.xExtent1, node.yExtent2})
 	end
 	
-	love.graphics.polygon("line", {	self.gameObject.position.x + self.xExtent1, self.gameObject.position.y + self.yExtent1,
-									self.gameObject.position.x + self.xExtent2, self.gameObject.position.y + self.yExtent1,
-									self.gameObject.position.x + self.xExtent2, self.gameObject.position.y + self.yExtent2,
-									self.gameObject.position.x + self.xExtent1, self.gameObject.position.y + self.yExtent2})
+	love.graphics.polygon("line", {	self.position.x + self.xExtent1, self.position.y + self.yExtent1,
+									self.position.x + self.xExtent2, self.position.y + self.yExtent1,
+									self.position.x + self.xExtent2, self.position.y + self.yExtent2,
+									self.position.x + self.xExtent1, self.position.y + self.yExtent2})
 end
 
 function PhysicsObject:Serialize(depth)
@@ -88,7 +90,7 @@ function PhysicsObject:TrimQuadNodes()
 end
 
 function PhysicsObject:GetExtents()
-	local gameObjectPosition = self.gameObject.position
+	local gameObjectPosition = self.position
 	return gameObjectPosition.x + self.xExtent1, gameObjectPosition.y + self.yExtent1, gameObjectPosition.x + self.xExtent2, gameObjectPosition.y + self.yExtent2
 end
 

@@ -12,7 +12,7 @@ function Editor:__init( strName, world, xExtent1, yExtent1, xExtent2, yExtent2 )
 	self.selectedObject = nil
 	self.heldObject = nil
 	self.mouseClicked = Vector:New( -1, -1 )
-	self.objectClicked = Vector:New( -1, -1 )
+	self.objectClickedPosition = Vector:New( -1, -1 )
 	self.propertiesPane = PropertiesPane:New( nil, 0, 0, 250, 500 )
 end
 
@@ -20,19 +20,19 @@ function Editor:Update( dt )
 	if self.heldObject then
 		local mouseDelta = Vector:New( love.mouse.getPosition() )
 		mouseDelta:sub( self.mouseClicked )
-		self.heldObject.position:set( self.objectClicked.x, self.objectClicked.y )
-		self.heldObject.position:add( mouseDelta )
+		self.heldObject.physicsObject.position:set( self.objectClickedPosition )
+		self.heldObject.physicsObject.position:add( mouseDelta )
 	end
 
-	self.propertiesPane.position.x = self.xExtent2 - self.propertiesPane.width
-	self.propertiesPane.position.y = 0
+	self.propertiesPane.physicsObject.position.x = self.xExtent2 - self.propertiesPane.width
+	self.propertiesPane.physicsObject.position.y = 0
 	self.propertiesPane:Update( dt )
 end
 
 function Editor:Draw()
 	if self.selectedObject then
-		local gameObjectPosition = self.selectedObject.position
 		local selectedPhysicsObject = self.selectedObject.physicsObject
+		local gameObjectPosition = selectedPhysicsObject.position
 		love.graphics.push()
 		love.graphics.translate( gameObjectPosition.x, gameObjectPosition.y )
 		love.graphics.setColor( 255, 255, 0 )
@@ -55,7 +55,7 @@ function Editor:HoldObject( object, x, y )
 	self.heldObject = object
 	if self.heldObject then
 		self.mouseClicked:set( x, y )
-		self.objectClicked:set( self.heldObject.position.x, self.heldObject.position.y )
+		self.objectClickedPosition:set( self.heldObject.position )
 	end
 end
 

@@ -8,13 +8,15 @@ function Floater:__init( strName )
 	Floater.super.__init(self, strName, vPos, CirclePhysicsObject:New(self, 5))
 
 	self.physicsObject.velocity:set( math.random() * 1000, 0, 0 )
+	self.physicsObject.collision = false
 end
 
 function Floater:Update( dt )
 	Floater.super.Update( self, dt )
 
-	self.position.x = (self.position.x > 1600 and 0) or (self.position.x < 0 and 1600) or self.position.x
-	self.position.y = (self.position.y > 900 and 0) or (self.position.y < 0 and 900) or self.position.y
+	self.physicsObject.position.x = (self.physicsObject.position.x > 1600 and 0) or (self.physicsObject.position.x < 0 and 1600) or self.physicsObject.position.x
+	self.physicsObject.position.y = (self.physicsObject.position.y > 900 and 0) or (self.physicsObject.position.y < 0 and 900) or self.physicsObject.position.y
+	self.position:set(self.physicsObject.position)
 end
 
 function Floater:Draw()

@@ -16,10 +16,10 @@ function CirclePhysicsObject:Update( dt )
 
 	--[[local worldPhysicsObject = self.gameObject and self.gameObject.world and self.gameObject.world.physicsObject
 	if worldPhysicsObject then
-		worldPhysicsObject:VisitRadius( self.gameObject.position.x, self.gameObject.position.y, self.radius )
+		worldPhysicsObject:VisitRadius( self.position.x, self.position.y, self.radius )
 	end--]]
 end
 
 function CirclePhysicsObject:PointCast( x, y )
-	return PointCircleIntersect( x, y, self.gameObject.position.x, self.gameObject.position.y, self.radius )
+	return PointCircleIntersect( x, y, self.position.x, self.position.y, self.radius )
 end

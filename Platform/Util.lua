@@ -75,6 +75,13 @@ function RectRectIntersect( rect1_x1, rect1_y1, rect1_x2, rect1_y2, rect2_x1, re
 	return segmentIntersects(rect1_x1, rect1_x2, rect2_x1, rect2_x2 ) and segmentIntersects(rect1_y1, rect1_y2, rect2_y1, rect2_y2 )
 end
 
+function CircleCircleIntersect( circle1_x, circle1_y, circle1_r, circle2_x, circle2_y, circle2_r )
+	local displacement2 = Vector:New(circle2_x, circle2_y):sub( Vector:New( circle1_x, circle1_y ) ):len2()
+	local threshold = circle1_r + circle2_r
+	local threshold2 = threshold * threshold
+	return displacement2 <= threshold2
+end
+
 function RectCircleIntersect( rect_x1, rect_y1, rect_x2, rect_y2, circle_x, circle_y, circle_r )
 	local bottom = circle_y + circle_r
 	local top = circle_y - circle_r
