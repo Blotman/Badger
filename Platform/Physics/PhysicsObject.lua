@@ -5,6 +5,7 @@ class "PhysicsObject"
 function PhysicsObject:__init( gameObject )
 	self.gameObject = gameObject
 	self.position = Vector:New(0, 0, 0)
+	self.lastPosition = nil
 	self.velocity = Vector:New(0, 0, 0)
 	self.acceleration = Vector:New(0, 0, 0)
 	self.maxSpeed = -1
@@ -38,23 +39,15 @@ function PhysicsObject:Update( dt )
 		end
 	end
 
+	local lastPosition = Vector:New( self.position )
 	self.position:add( self.velocity:_mul( dt ) )
 
-	if self.gameObject.world and self.collision then
-		local positionChanged = false
-		if self.lastPosition == nil then
-			self.lastPosition = Vector:New()
-			positionChanged = true
-		elseif not self.lastPosition:equals(self.position) then
-			positionChanged = true
-			self.lastPosition:set( self.position )
-		end
-		if positionChanged then
-			self.quadNodes = {}
-			self.gameObject.world.physicsObject:ObjectMoved( self )
-			self:TrimQuadNodes()
-		end
+	if self.gameObject.world and self.collision and (self.lastPosition == nil or self.lastPosition:notEquals(self.position)) then
+		self.quadNodes = {}
+		self.gameObject.world.physicsObject:ObjectMoved( self )
+		self:TrimQuadNodes()
 	end
+	self.lastPosition = lastPosition
 end
 
 function PhysicsObject:DrawQuadNodes()

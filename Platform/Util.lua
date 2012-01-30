@@ -83,28 +83,49 @@ function CircleCircleIntersect( circle1_x, circle1_y, circle1_r, circle2_x, circ
 end
 
 function RectCircleIntersect( rect_x1, rect_y1, rect_x2, rect_y2, circle_x, circle_y, circle_r )
-	local bottom = circle_y + circle_r
-	local top = circle_y - circle_r
-	local right = circle_x + circle_r
-	local left = circle_x - circle_r
+	local function CircleCenterIntersectRect()
+		return PointRectIntersect( circle_x, circle_y, rect_x1, rect_y1, rect_x2, rect_y2 )
+	end
 
-	local intersect = rect_x1 <= circle_x and rect_x2 >= circle_x and bottom >= rect_y1 and top <= rect_y2
+	local function CircleEdgesIntersectRect()
+		local intersect = false
+		local circleVecs = {Vector:New( circle_x,				circle_y - circle_r ),
+							Vector:New( circle_x,				circle_y + circle_r ),
+							Vector:New( circle_x - circle_r,	circle_y ),
+							Vector:New( circle_x + circle_r,	circle_y ) }
+		for i, circleVec in ipairs(circleVecs) do
+			if PointRectIntersect( circleVec.x, circleVec.y, rect_x1, rect_y1, rect_x2, rect_y2 ) then
+				intersect = true
+				break
+			end
+		end
+		return intersect
+	end
 
-	if not intersect then
+	local function RectCornersIntersectCircle()
+		local intersect = false
 		local rectVecs = {
 			Vector:New( rect_x1, rect_y1 ),
 			Vector:New( rect_x2, rect_y1 ),
 			Vector:New( rect_x2, rect_y2 ),
 			Vector:New( rect_x1, rect_y2 ) }
-		local circleVec = Vector:New( circle_x, circle_y )
-		local radius2 = circle_r * circle_r
 		for i, rectVec in ipairs(rectVecs) do
-			local displacementVec = circleVec:_sub( rectVec )
-			if displacementVec:len2() <= radius2 then
+			if PointCircleIntersect( rectVec.x, rectVec.y, circle_x, circle_y, circle_r ) then
 				intersect = true
 				break
 			end
 		end
+		return intersect
+	end
+
+	local intersect = CircleCenterIntersectRect()
+					or CircleEdgesIntersectRect()
+					or RectCornersIntersectCircle()
+	
+	--(rect_x1 <= left and rect_x2 >= left or rect_x1 <= right and rect_x2 >= right) and (rect_y1 <= top and rect_y2 >= top or rect_y1 <= bottom and rect_y2 >= bottom)
+
+	if not intersect then
+		
 	end
 
 	return intersect

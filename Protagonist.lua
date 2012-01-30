@@ -24,4 +24,16 @@ function Protagonist:Draw()
 	love.graphics.setColor( 255, 128, 128 )
 	love.graphics.circle("fill", 0, 0, self.physicsObject.radius)
 	love.graphics.pop()
+	
+	local quadNodes = self.world.physicsObject:QuadNodesInRadius( self.position.x, self.position.y, self.physicsObject.radius )
+	
+	for _, node in pairs( quadNodes ) do
+		if #node == 0 then
+			love.graphics.polygon("line", {	node.xExtent1, node.yExtent1,
+											node.xExtent2, node.yExtent1,
+											node.xExtent2, node.yExtent2,
+											node.xExtent1, node.yExtent2})
+										end
+	end
+									
 end

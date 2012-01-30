@@ -25,4 +25,5 @@ function Antagonist:Draw()
 	love.graphics.setColor( 0, 255, 255 )
 	love.graphics.circle("fill", 0, 0, self.physicsObject.radius)
 	love.graphics.pop()
+	self.physicsObject:DrawQuadNodes()
 end

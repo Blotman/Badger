@@ -63,15 +63,18 @@ function Vector:_sub( ... )
 	return Vector:New( self ):sub( ... )
 end
 
-function Vector:mul(x)
+function Vector:mul(x, y, z)
+	x = x or 0
+	y = y or x
+	z = z or x
 	if type(x) == "table" and x:IsA( Vector ) then
 		self.x = self.x * x.x
 		self.y = self.y * x.y
 		self.z = self.z * x.z
 	else
 		self.x = self.x * x
-		self.y = self.y * x
-		self.z = self.z * x
+		self.y = self.y * y
+		self.z = self.z * z
 	end
 	return self
 end
@@ -137,6 +140,12 @@ function Vector:equals(other)
 	return self.x == other.x and
 			self.y == other.y and
 			self.z == other.z
+end
+
+function Vector:notEquals(other)
+	return self.x ~= other.x or
+			self.y ~= other.y or
+			self.z ~= other.z
 end
 
 function Vector:Serialize(depth)

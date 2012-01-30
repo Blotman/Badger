@@ -62,6 +62,26 @@ function WorldPhysicsObject:VisitInQuadNode( node, intersectFunc, ... )
 	return visitedObjects
 end
 
+function WorldPhysicsObject:QuadNodesInArea( nodesTable, parentNode, intersectFunc, ... )
+	if intersectFunc( parentNode, ... ) and #parentNode > 0 then
+		for i, childNode in ipairs(parentNode) do
+			table.insert( nodesTable, childNode )
+			self:QuadNodesInArea( nodesTable, childNode, intersectFunc, ... )
+		end
+	end
+end
+
+function WorldPhysicsObject:QuadNodesInRadius( x, y, radius )
+	local quadNodes = {}
+	local function circleIntersect( node, x, y, radius )
+		return RectCircleIntersect( node.xExtent1, node.yExtent1, node.xExtent2, node.yExtent2, x, y, radius )
+	end
+
+	self:QuadNodesInArea( quadNodes, self.quadTree, circleIntersect, x, y, radius )
+	
+	return quadNodes
+end
+
 function WorldPhysicsObject:VisitRadius( x, y, radius, ignoreTable )
 	local function circleIntersect( node, x, y, radius )
 		return RectCircleIntersect( node.xExtent1, node.yExtent1, node.xExtent2, node.yExtent2, x, y, radius )
@@ -137,18 +157,13 @@ function WorldPhysicsObject:Update( dt )
 	local circle_x = g_protagonist.position.x
 	local circle_y = g_protagonist.position.y
 	local circle_r = g_protagonist.physicsObject.radius
-
-	love.graphics.setColor( 255, 255, 0 )
-	love.graphics.rectangle('line', rect_x1, rect_y1, rect_x2 - rect_x1, rect_y2 - rect_y1)
 	
 	local ignoreTable = {}
 	ignoreTable[g_protagonist.physicsObject] = true
 	local foundObject = self:VisitRadius( circle_x, circle_y, circle_r, ignoreTable )
 	if foundObject == g_antagonist.physicsObject then
-		local displacement = g_antagonist.position:_sub(g_protagonist.position):normalize()
-		foundObject.velocity:mul(displacement)
-	--print(foundObject.gameObject.name)
-		--love.graphics.circle("line", circle_x, circle_y, circle_r)
-		
+		local speed = foundObject.velocity:len()
+		local displacement = g_antagonist.position:_sub(g_protagonist.position):setLength(speed)
+		foundObject.velocity:set(displacement)
 	end
 end
