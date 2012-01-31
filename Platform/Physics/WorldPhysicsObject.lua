@@ -48,48 +48,70 @@ function WorldPhysicsObject:PopulateTreeNode( node, depth, xExtent1, yExtent1, x
 	end
 end
 
-function WorldPhysicsObject:VisitInQuadNode( node, intersectFunc, ... )
-	local visitedObjects = nil
-	if intersectFunc( node, ... ) then
-		if #node > 0 then
+function WorldPhysicsObject:QuadNodesInArea( nodesTable, node, intersectFunc, engulfFunc )
+	if intersectFunc( node ) then
+		if #node > 0 and not engulfFunc( node ) then
 			for i, childNode in ipairs(node) do
-				visitedObjects = self:VisitInQuadNode( childNode, intersectFunc, ... ) or visitedObjects
+				self:QuadNodesInArea( nodesTable, childNode, intersectFunc, engulfFunc )
 			end
 		else
-			visitedObjects = node.objects
-		end
-	end
-	return visitedObjects
-end
-
-function WorldPhysicsObject:QuadNodesInArea( nodesTable, parentNode, intersectFunc, ... )
-	if intersectFunc( parentNode, ... ) and #parentNode > 0 then
-		for i, childNode in ipairs(parentNode) do
-			table.insert( nodesTable, childNode )
-			self:QuadNodesInArea( nodesTable, childNode, intersectFunc, ... )
+			nodesTable[node] = true
 		end
 	end
 end
 
 function WorldPhysicsObject:QuadNodesInRadius( x, y, radius )
 	local quadNodes = {}
-	local function circleIntersect( node, x, y, radius )
+	local function circleIntersect( node )
 		return RectCircleIntersect( node.xExtent1, node.yExtent1, node.xExtent2, node.yExtent2, x, y, radius )
 	end
 
-	self:QuadNodesInArea( quadNodes, self.quadTree, circleIntersect, x, y, radius )
+	local function circleEngulf( node )
+		local left = x - radius
+		local right = x + radius
+		local top = y - radius
+		local bottom = y + radius
+
+		return left <= node.xExtent1 and top <= node.yExtent1 and right >= node.xExtent2 and bottom >= node.yExtent2
+	end
+
+	self:QuadNodesInArea( quadNodes, self.quadTree, circleIntersect, circleEngulf )
 	
 	return quadNodes
 end
 
+function WorldPhysicsObject:VisitInQuadNode( visitedObjects, node, intersectFunc, engulfFunc )
+	if intersectFunc( node ) then
+		if #node > 0 and not engulfFunc( node ) then
+			for i, childNode in ipairs(node) do
+				self:VisitInQuadNode( visitedObjects, childNode, intersectFunc, engulfFunc )
+			end
+		else
+			for object, _ in pairs(node.objects) do
+				visitedObjects[object] = true
+			end
+		end
+	end
+end
+
 function WorldPhysicsObject:VisitRadius( x, y, radius, ignoreTable )
-	local function circleIntersect( node, x, y, radius )
+	local function circleIntersect( node )
 		return RectCircleIntersect( node.xExtent1, node.yExtent1, node.xExtent2, node.yExtent2, x, y, radius )
 	end
+	
+	local function circleEngulf( node )
+		local left = x - radius
+		local right = x + radius
+		local top = y - radius
+		local bottom = y + radius
 
-	local vistedObjects = self:VisitInQuadNode(self.quadTree, circleIntersect, x, y, radius) or {}
+		return left <= node.xExtent1 and top <= node.yExtent1 and right >= node.xExtent2 and bottom >= node.yExtent2
+	end
+
+	local visitedObjects = {}
+	self:VisitInQuadNode( visitedObjects, self.quadTree, circleIntersect, circleEngulf )
 	local foundObject = nil
-	for object, _ in pairs( vistedObjects ) do
+	for object, _ in pairs( visitedObjects ) do
 		if not ignoreTable[object] then
 			local x1 = object.position.x + object.xExtent1
 			local y1 = object.position.y + object.yExtent1
@@ -106,14 +128,15 @@ function WorldPhysicsObject:VisitRadius( x, y, radius, ignoreTable )
 end
 
 function WorldPhysicsObject:PointCast( x, y )
-	local function pointIntersect( node, x, y )
+	local function pointIntersect( node )
 		return PointRectIntersect( x, y, node.xExtent1, node.yExtent1, node.xExtent2, node.yExtent2 )
 	end
 
-	local vistedObjects = self:VisitInQuadNode( self.quadTree, pointIntersect, x, y )
+	local visitedObjects = {}
+	self:VisitInQuadNode( visitedObjects, self.quadTree, pointIntersect, function() return false end )
 
 	local foundObject = nil
-	for object, _ in pairs( vistedObjects ) do
+	for object, _ in pairs( visitedObjects ) do
 		if object:PointCast( x, y ) then
 			foundObject = object
 			break
