@@ -167,6 +167,16 @@ function WorldPhysicsObject:ObjectMoved( physicsObject )
 	local x2 = gameObjectPosition.x + physicsObject.xExtent2
 	local y2 = gameObjectPosition.y + physicsObject.yExtent2
 
+	if self.containCollisionObjects and physicsObject.collision then
+		gameObjectPosition.x = x1 < self.quadTree.xExtent1 and gameObjectPosition.x + ( self.quadTree.xExtent1 - x1 )
+			or x2 > self.quadTree.xExtent2 and gameObjectPosition.x + ( self.quadTree.xExtent2 - x2 )
+			or gameObjectPosition.x
+
+		gameObjectPosition.y = y1 < self.quadTree.yExtent1 and gameObjectPosition.y + ( self.quadTree.yExtent1 - y1 )
+			or y2 > self.quadTree.yExtent2 and gameObjectPosition.y + ( self.quadTree.yExtent2 - y2 )
+			or gameObjectPosition.y
+	end
+
 	self:AddObjectToQuadNode( self.quadTree, physicsObject, x1, y1, x2, y2 )
 end
 

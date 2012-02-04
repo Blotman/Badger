@@ -33,7 +33,7 @@ function love.load(arg)
 	------------------------------------------------------
 
 	g_world = LoadTestWorld()
-	g_editor = Editor:New( nil, g_world, 0, 0, g_screenWidth, g_screenHeight )
+	--g_editor = Editor:New( nil, g_world, 0, 0, g_screenWidth, g_screenHeight )
 	--g_world:Save("Wubba.txt")
 	-- #####################################################
 
@@ -68,17 +68,17 @@ end
 function love.mousepressed( x, y, button )
 	Mouse.ButtonState[button] = true
 	if button == "l" then
-		local selectedPhysicsObject = g_world.physicsObject:PointCast( x, y )
-		local selectedGameObject = selectedPhysicsObject and selectedPhysicsObject.gameObject
-		g_editor:SelectObject( selectedGameObject )
-		g_editor:HoldObject( selectedGameObject, x, y )
+		--local selectedPhysicsObject = g_world.physicsObject:PointCast( x, y )
+		--local selectedGameObject = selectedPhysicsObject and selectedPhysicsObject.gameObject
+		--g_editor:SelectObject( selectedGameObject )
+		--g_editor:HoldObject( selectedGameObject, x, y )
 	end
 end
 
 function love.mousereleased( x, y, button )
 	Mouse.ButtonState[button] = false
 	if button == "l" then
-		g_editor:ReleaseObject( x, y )
+		--g_editor:ReleaseObject( x, y )
 	end
 end
 
@@ -87,14 +87,14 @@ function love.update(dt)
 												(Controller.KeyState.down and 1.0 or 0.0) - (Controller.KeyState.up and 1.0 or 0.0), 0.0 )
 	g_protagonist.physicsObject.acceleration:setLength(g_protagonist.physicsObject.friction * 2)
 
-	g_editor:Update(dt)
+	--g_editor:Update(dt)
 	g_world:Update(dt)
 end
 
 function love.draw()
 	love.graphics.setRenderTarget( g_framebuffer )
 	g_world:Draw()
-	g_editor:Draw()
+	--g_editor:Draw()
 
 	love.graphics.setRenderTarget()
 
