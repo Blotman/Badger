@@ -12,8 +12,16 @@ function Protagonist:__init( strName )
 	self.physicsObject.friction = 2000
 	
 	self.stateMachine = CharacterStateMachine:New( self )
-	self.stateMachine:SetUpdateCallback( "Entry", Protagonist.EntryUpdate )
-	self.stateMachine:SetDrawCallback( "Entry", Protagonist.EntryDraw )
+	self.stateMachine:SetStateCallbacks( "Entry",
+		Protagonist.EntryEnter,
+		Protagonist.EntryUpdate,
+		Protagonist.EntryDraw,
+		nil )
+	self.stateMachine:SetStateCallbacks( "Active",
+		nil,
+		Protagonist.ActiveUpdate,
+		Protagonist.ActiveDraw,
+		nil )
 end
 
 function Protagonist:Update( dt )
@@ -22,9 +30,6 @@ function Protagonist:Update( dt )
 
 	--self.physicsObject.position.x = (self.physicsObject.position.x > self.world.physicsObject and 0) or (self.physicsObject.position.x < 0 and 1600) or self.physicsObject.position.x
 	--self.physicsObject.position.y = (self.physicsObject.position.y > 900 and 0) or (self.physicsObject.position.y < 0 and 900) or self.physicsObject.position.y
-end
-
-function Protagonist:EntryUpdate( dt )
 end
 
 function Protagonist:Draw()
@@ -39,7 +44,30 @@ function Protagonist:Draw()
 	end--]]
 end
 
+function Protagonist:EntryEnter()
+	self.enterRadius = 0
+end
+
+function Protagonist:EntryUpdate( dt )
+	self.enterRadius = self.enterRadius + 25.0 * dt
+	if self.enterRadius > self.physicsObject.radius then
+		self.enterRadius = self.physicsObject.radius
+		self.stateMachine:TriggerEvent("Next")
+	end
+end
+
 function Protagonist:EntryDraw()
+	love.graphics.push()
+	love.graphics.translate( self.position.x, self.position.y )
+	love.graphics.setColor( 128, 128, 128 )
+	love.graphics.circle("fill", 0, 0, self.enterRadius)
+	love.graphics.pop()
+end
+
+function Protagonist:ActiveUpdate( dt )
+end
+
+function Protagonist:ActiveDraw()
 	love.graphics.push()
 	love.graphics.translate( self.position.x, self.position.y )
 	love.graphics.setColor( 255, 128, 128 )
