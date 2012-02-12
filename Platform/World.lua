@@ -9,5 +9,8 @@ end
 
 function World:AddChild( child )
 	child:SetWorld( self )
+	if child.physicsObject then
+		self.physicsObject:AddChild( child.physicsObject )
+	end
 	World.super.AddChild( self, child )
 end

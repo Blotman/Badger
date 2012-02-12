@@ -8,16 +8,22 @@ function TestFixture:New()
 	
 	function instance:AssertEquals( expected, actual )
 		local result = expected == actual
-		local message = result and "" or string.format( "%s does not equal %s", tostring(actual), tostring(expected) )
+		local message = result and "" or string.format( "%s does not equal %s", ToString(actual), ToString(expected) )
 		return result, message
 	end
 
 	function instance:AssertTrue( test )
 		local result = test == true
-		local message = result and "" or string.format( "Expected true, but got false" )
+		local message = result and "" or string.format( "Expected true, but got %s", ToString( test ) )
 		return result, message
 	end
-	
+
+	function instance:AssertNil( test )
+		local result = test == nil
+		local message = result and "" or string.format( "Expected nil, but got %s", ToString( test ) )
+		return result, message
+	end
+
 	function instance:Run()
 		local results = {}
 		if instance.SetUp then

@@ -13,11 +13,6 @@ end
 
 function CirclePhysicsObject:Update( dt )
 	self.super.Update( self, dt )
-
-	--[[local worldPhysicsObject = self.gameObject and self.gameObject.world and self.gameObject.world.physicsObject
-	if worldPhysicsObject then
-		worldPhysicsObject:VisitRadius( self.position.x, self.position.y, self.radius )
-	end--]]
 end
 
 function CirclePhysicsObject:PointCast( x, y )

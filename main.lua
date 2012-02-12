@@ -8,6 +8,7 @@ require("Platform/Physics/PhysicsObject")
 require("Protagonist")
 require("Antagonist")
 require("Floater")
+require("Block")
 
 g_screenWidth = 1600
 g_screenHeight = 900
@@ -15,8 +16,11 @@ g_screenHeight = 900
 function LoadTestWorld()
 	local world = World:New( nil, 0, 0, g_screenWidth, g_screenHeight )
 	for i=1,400 do
-	--	world:AddChild(Floater:New())
+		--world:AddChild(Floater:New())
 	end
+	
+	world:AddChild(Block:New( nil, 800, 450, 800, 500 ))
+
 	g_antagonist = Antagonist:New()
 	g_antagonist.physicsObject.position.x = g_screenWidth / 2
 	g_antagonist.physicsObject.position.y = g_screenHeight / 2
@@ -88,6 +92,7 @@ function love.update(dt)
 	g_protagonist.physicsObject.acceleration:setLength(g_protagonist.physicsObject.friction * 2)
 
 	--g_editor:Update(dt)
+	g_world.physicsObject:Update(dt)
 	g_world:Update(dt)
 end
 

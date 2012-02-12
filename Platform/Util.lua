@@ -17,8 +17,7 @@ function ToString(data, initialDepth, minimal)
 			local count = 0
 			table.insert( serialized, "{" )
 			for key, value in pairs( data ) do
-				local keyFunc = tostringWrapper[type(key)]
-				local keyString = (not keyFunc) and tostring(key) or keyFunc(key)
+				local keyString = tostring(key)
 
 				local valueFunc = tostringWrapper[type(value)]
 				local valueString = (not valueFunc) and tostring(value) or valueFunc(value, depth, tracer)
