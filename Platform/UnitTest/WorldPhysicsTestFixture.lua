@@ -45,6 +45,17 @@ function WorldTestFixture:TestVisitWorld2()
 	local visitedObjects = self.object1:VisitWorld()
 	return self:AssertTrue( visitedObjects[self.object2] )
 end
+
+function WorldTestFixture:TestVisitWorld3()
+	self.object1.position:set( 45, 62, 0 )
+	self.world:ObjectMoved( self.object1 )
+
+	self.object2.position:set( 50, 50, 0 )
+	self.world:ObjectMoved( self.object2 )
+
+	local visitedObjects = self.object1:VisitWorld()
+	return self:AssertNil( visitedObjects[self.object2] )
+end
 --[[
 function WorldTestFixture:TestCollisionInfo1()
 	self.object1.position:set( 5, 5, 0 )

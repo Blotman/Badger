@@ -14,20 +14,27 @@ g_screenWidth = 1600
 g_screenHeight = 900
 
 function LoadTestWorld()
-	local world = World:New( nil, 0, 0, g_screenWidth, g_screenHeight )
-	for i=1,400 do
+	local world = World:New( nil, 0, 0, g_screenWidth, g_screenHeight, 0, 500 )
+	--for i=1,400 do
 		--world:AddChild(Floater:New())
-	end
-	
-	world:AddChild(Block:New( nil, 800, 450, 800, 500 ))
+	--end
 
-	g_antagonist = Antagonist:New()
+	Block:New( nil, world, g_screenWidth / 2, g_screenHeight / 2, 0, 0, 800, 500 )
+
+	Block:New( nil, world, g_screenWidth / 2, 0, 0, 0, g_screenWidth, 1 )
+	Block:New( nil, world, g_screenWidth / 2, g_screenHeight, 0, 0, g_screenWidth, 1 )
+	Block:New( nil, world, 0, g_screenHeight / 2, 0, 0, 1, g_screenHeight )
+	Block:New( nil, world, g_screenWidth, g_screenHeight / 2, 0, 0, 1, g_screenHeight )
+	
+	--world:AddChild( g_block )
+
+	--[[g_antagonist = Antagonist:New()
 	g_antagonist.physicsObject.position.x = g_screenWidth / 2
 	g_antagonist.physicsObject.position.y = g_screenHeight / 2
 	g_antagonist.physicsObject.velocity.y = 400
 	g_antagonist.physicsObject.friction = 0
 
-	world:AddChild(g_antagonist)
+	world:AddChild(g_antagonist)--]]
 
 	return world
 end
@@ -45,13 +52,14 @@ function love.load(arg)
 	
 	-------------------------------------------------------
 	--g_world:Save( "test.txt" )
-	g_protagonist = Protagonist:New()
-	g_world:AddChild( g_protagonist )
+	g_protagonist = Protagonist:New( nil, g_world )
+	--g_world:AddChild( g_protagonist )
 
 	g_framebuffer = love.graphics.newFramebuffer( g_screenWidth, g_screenHeight )
 end
 
 function love.keypressed(key, unicode)
+print( "\"" .. key .. "\"", unicode  )
 	local mapping = Controller.KeyMapping[key]
 	if mapping then
 		if Controller.KeyState[mapping] ~= nil then
@@ -87,13 +95,18 @@ function love.mousereleased( x, y, button )
 end
 
 function love.update(dt)
-	g_protagonist.physicsObject.acceleration:set( (Controller.KeyState.right and 1.0 or 0.0) - (Controller.KeyState.left and 1.0 or 0.0),
-												(Controller.KeyState.down and 1.0 or 0.0) - (Controller.KeyState.up and 1.0 or 0.0), 0.0 )
-	g_protagonist.physicsObject.acceleration:setLength(g_protagonist.physicsObject.friction * 2)
+	--g_protagonist.physicsObject.acceleration:set( (Controller.KeyState.right and 1.0 or 0.0) - (Controller.KeyState.left and 1.0 or 0.0),
+	--											(Controller.KeyState.down and 1.0 or 0.0) - (Controller.KeyState.up and 1.0 or 0.0), 0.0 )
+	--g_protagonist.physicsObject.acceleration:setLength(g_protagonist.physicsObject.friction * 2)
 
 	--g_editor:Update(dt)
-	g_world.physicsObject:Update(dt)
+	local velocity = Vector:New( (Controller.KeyState.right and 1.0 or 0.0) - (Controller.KeyState.left and 1.0 or 0.0),
+												(Controller.KeyState.down and 1.0 or 0.0) - (Controller.KeyState.up and 1.0 or 0.0), 0.0 )
+	velocity:setLength(500)
+	g_protagonist.physicsBody:setLinearVelocity( velocity.x, velocity.y )
+	
 	g_world:Update(dt)
+
 end
 
 function love.draw()

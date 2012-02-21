@@ -10,6 +10,7 @@ Controller.KeyState = {
 	down = false,
 	left = false,
 	right = false,
+	attack = false,
 	escape = false,
 }
 Controller.KeyMapping = {
@@ -21,5 +22,6 @@ Controller.KeyMapping = {
 	down = "down",
 	left = "left",
 	right = "right",
+	[" "] = "attack",
 	escape = "escape"
 }

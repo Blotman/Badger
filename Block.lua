@@ -1,27 +1,17 @@
-require("Platform/GameObject")
-require("Platform/Physics/StaticPhysicsObject")
+require("Platform/Body")
 
-class("Block"):Extends( GameObject )
+class("Block"):Extends( Body )
 
-function Block:__init( strName, x, y, width, height )
+function Block:__init( strName, world, x, y, mass, inertia, width, height, angle )
 	local vPos = Vector:New( x, y )
-	Block.super.__init(self, strName, vPos, StaticPhysicsObject:New(self))
-
-	self.physicsObject.xExtent1 = -width / 2
-	self.physicsObject.xExtent2 = width / 2
-	self.physicsObject.yExtent1 = -height / 2
-	self.physicsObject.yExtent2 = height / 2
-end
-
-function Block:Update( dt )
-	Block.super.Update( self, dt )
+	Block.super.__init( self, strName, world, vPos, mass, inertia )
+	self.physicsShape = love.physics.newRectangleShape( self.physicsBody, 0, 0, width, height, angle )
+	self.physicsShape:setFriction( 0 )
 end
 
 function Block:Draw()
 	love.graphics.push()
-	love.graphics.translate( self.position.x, self.position.y )
 	love.graphics.setColor( 128, 128, 128 )
-	love.graphics.rectangle( "fill", self.physicsObject.xExtent1, self.physicsObject.yExtent1, self.physicsObject.xExtent2, self.physicsObject.yExtent2 )
-	--love.graphics.circle("fill", 0, 0, self.enterRadius)
+	love.graphics.polygon( "fill", self.physicsShape:getPoints() )
 	love.graphics.pop()
 end

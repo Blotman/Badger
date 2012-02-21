@@ -3,13 +3,12 @@ require("Platform/Vector")
 
 class "GameObject"
 
-function GameObject:__init( strName, vPos, physicsObject )
+function GameObject:__init( strName, world, vPos )
 	self.name = strName
 	self.position = vPos or Vector:New()
-	self.physicsObject = physicsObject
-	self.physicsObject.position:set( self.position )
 	self.children = {}
-	self.world = nil
+	self.world = world
+	world:AddChild( self )
 end
 
 function GameObject:SetWorld( worldObject )
@@ -24,8 +23,8 @@ function GameObject:AddChild( child )
 end
 
 function GameObject:Update(dt)
-	if self.physicsObject ~= nil then
-		self.position:set( self.physicsObject.position )
+	if self.physicsBody ~= nil then
+		self.position:set( self.physicsBody.position )
 	end
 	for _, child in ipairs(self.children) do
 		child:Update(dt)
@@ -40,7 +39,7 @@ end
 
 function GameObject:SerializeAttributes(depth)
 	local attributesTable = {}
-	SerializeHelper( self, attributesTable, {"className", "name", "position", "physicsObject"}, depth)
+	SerializeHelper( self, attributesTable, {"className", "name", "position", "physicsBody"}, depth)
 	table.insert( attributesTable, string.format("\n%schildren={", Tab(depth)) )
 	for i, child in ipairs(self.children) do
 		local temp = string.format("\n%s[%s]=%s,", Tab(depth+1), tostring(i), child:Serialize(depth+1))
@@ -63,10 +62,10 @@ function GameObject:Deserialize(data)
 	self.name = data.name
 	self.position:Deserialize(data.position)
 	data.position = nil
-	if data.physicsObject then
-		self.physicsObject = Class.InstantiateFromTable(data.physicsObject)
-		self.physicsObject.gameObject = self
-		data.physicsObject = nil
+	if data.physicsBody then
+		self.physicsBody = Class.InstantiateFromTable(data.physicsBody)
+		self.physicsBody.gameObject = self
+		data.physicsBody = nil
 	end
 	if data.children then
 		for i, j in ipairs(data.children) do

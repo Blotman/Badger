@@ -63,24 +63,52 @@ function PhysicsObject:VisitWorld()
 	return visitedObject
 end
 
-function PhysicsObject:GetCollisionInfo( dt )
-	local collisionInfo = nil
+function PhysicsObject:CollidedWith( testPhysicsObject )
+	local rect_x1 = self.position.x + self.xExtent1
+	local rect_y1 = self.position.y + self.yExtent1
+	local rect_x2 = self.position.x + self.xExtent2
+	local rect_y2 = self.position.y + self.yExtent2
+	
+	if testPhysicsObject:IsA( CirclePhysicsObject ) then
+		local circle_x = testPhysicsObject.position.x
+		local circle_y = testPhysicsObject.position.y
+		local circle_r = testPhysicsObject.radius
+		return RectCircleIntersect( rect_x1, rect_y1, rect_x2, rect_y2, circle_x, circle_y, circle_r )
+	else
+		local rect2_x1 = testPhysicsObject.position.x + testPhysicsObject.xExtent1
+		local rect2_y1 = testPhysicsObject.position.y + testPhysicsObject.yExtent1
+		local rect2_x2 = testPhysicsObject.position.x + testPhysicsObject.xExtent2
+		local rect2_y2 = testPhysicsObject.position.y + testPhysicsObject.yExtent2
 
-	local collidedObjects = self:VisitWorld()
-	if collidedObjects then
+		RectRectIntersect( rect_x1, rect_y1, rect_x2, rect_y2, rect2_x1, rect2_y1, rect2_x2, rect2_y2 )
+	end
+end
+
+function PhysicsObject:GetAppliedCollision( dt )
+	local appliedCollision = nil
+
+	local visitedObjects = self:VisitWorld()
+	if visitedObjects then
 		local collidedDt = dt
-		for collidedObject, _ in pairs(collidedObjects) do
-			local positionAtTestDt = Vector:New( collidedObject.positions )
-			collisionInfo = { position = Vector:New( self.lastPosition  ) }
+		-- Determine which of the visited objects actually collided
+		
+		-- For dynamic to static interaction
+		--   Get tangent vector of collision point
+		--   Move position of dynamic object perpendicular away from tangent until not collided
+		for visitedObject, _ in pairs(visitedObjects) do
+			if self:CollidedWith( visitedObject ) then
+				local positionAtTestDt = Vector:New( visitedObject.positions )
+				appliedCollision = { position = Vector:New( self.lastPosition  ) }
+			end
 		end
 	end
 
-	return collisionInfo
+	return appliedCollision
 end
 
 function PhysicsObject:DrawQuadNodes()
 	local nodesOccupied = self.world.quadNodesOccupied[self]
-	for node, _ in pairs( self.quadNodes ) do
+	for node, _ in pairs( nodesOccupied ) do
 		love.graphics.polygon("line", {	node.xExtent1, node.yExtent1,
 										node.xExtent2, node.yExtent1,
 										node.xExtent2, node.yExtent2,

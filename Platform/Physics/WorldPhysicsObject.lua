@@ -227,7 +227,7 @@ function WorldPhysicsObject:Update( dt )
 
 	local appliedCollisionTable = {}
 	for child, _ in pairs( self.children ) do
-		appliedCollisionTable[child] = child:GetCollisionInfo( dt )
+		appliedCollisionTable[child] = child:GetAppliedCollision( dt )
 	end
 
 	for child, collisionInfo in pairs(appliedCollisionTable) do

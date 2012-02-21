@@ -1,15 +1,16 @@
-require("Platform/GameObject")
-require("Platform/Physics/CirclePhysicsObject")
+require("Platform/Body")
 require("Platform/StateMachine/CharacterStateMachine")
 
-class("Protagonist"):Extends( GameObject )
+class("Protagonist"):Extends( Body )
 
-function Protagonist:__init( strName )
-	local vPos = Vector:New( math.random() * 1600, math.random() * 900, 0 )
-	Protagonist.super.__init(self, strName, vPos, CirclePhysicsObject:New(self, 50))
+function Protagonist:__init( strName, world )
+	local vPos = Vector:New( 50, 50, 0 )
+	Protagonist.super.__init( self, strName, world, vPos, 5, 0 )
+	self.physicsShape = love.physics.newCircleShape( self.physicsBody, 0, 0, 50 )
+	self.physicsShape:setFriction( 0 )
 
-	self.physicsObject.maxSpeed = 400
-	self.physicsObject.friction = 2000
+	--self.physicsObject.maxSpeed = 400
+	--self.physicsObject.friction = 2000
 	
 	self.stateMachine = CharacterStateMachine:New( self )
 	self.stateMachine:SetStateCallbacks( "Entry",
@@ -50,17 +51,17 @@ end
 
 function Protagonist:EntryUpdate( dt )
 	self.enterRadius = self.enterRadius + 25.0 * dt
-	if self.enterRadius > self.physicsObject.radius then
-		self.enterRadius = self.physicsObject.radius
+	local physicsRadius = self.physicsShape:getRadius()
+	if self.enterRadius > physicsRadius then
+		self.enterRadius = physicsRadius
 		self.stateMachine:TriggerEvent("Next")
 	end
 end
 
 function Protagonist:EntryDraw()
 	love.graphics.push()
-	love.graphics.translate( self.position.x, self.position.y )
 	love.graphics.setColor( 128, 128, 128 )
-	love.graphics.circle("fill", 0, 0, self.enterRadius)
+	love.graphics.circle("fill", self.physicsBody:getX(), self.physicsBody:getY(), self.enterRadius, 20)
 	love.graphics.pop()
 end
 
@@ -69,8 +70,7 @@ end
 
 function Protagonist:ActiveDraw()
 	love.graphics.push()
-	love.graphics.translate( self.position.x, self.position.y )
 	love.graphics.setColor( 255, 128, 128 )
-	love.graphics.circle("fill", 0, 0, self.physicsObject.radius)
+	love.graphics.circle("fill", self.physicsBody:getX(), self.physicsBody:getY(), self.physicsShape:getRadius(), 20)
 	love.graphics.pop()
 end
