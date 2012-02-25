@@ -11,9 +11,16 @@ function GameObject:__init( strName, world, vPos )
 	world:AddChild( self )
 end
 
+function GameObject:Delete()
+	for child, _ in pairs(self.children) do
+		child:Delete()
+	end
+	self.world:RemoveChild( self )
+end
+
 function GameObject:SetWorld( worldObject )
 	self.world = worldObject
-	for i, child in ipairs( self.children ) do
+	for child, _ in pairs(self.children) do
 		child:SetWorld( worldObject )
 	end
 end
@@ -26,13 +33,13 @@ function GameObject:Update(dt)
 	if self.physicsBody ~= nil then
 		self.position:set( self.physicsBody.position )
 	end
-	for _, child in ipairs(self.children) do
+	for child, _ in pairs(self.children) do
 		child:Update(dt)
 	end
 end
 
 function GameObject:Draw()
-	for _, child in ipairs(self.children) do
+	for child, _ in pairs(self.children) do
 		child:Draw()
 	end
 end

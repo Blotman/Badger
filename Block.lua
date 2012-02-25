@@ -6,6 +6,8 @@ function Block:__init( strName, world, x, y, mass, inertia, width, height, angle
 	local vPos = Vector:New( x, y )
 	Block.super.__init( self, strName, world, vPos, mass, inertia )
 	self.physicsShape = love.physics.newRectangleShape( self.physicsBody, 0, 0, width, height, angle )
+	self.physicsShape:setData( self )
+	self.physicsShape:setCategory( World.physicsCategories.static )
 	self.physicsShape:setFriction( 0 )
 end
 

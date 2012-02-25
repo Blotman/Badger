@@ -1,28 +1,22 @@
-require("Platform/GameObject")
-require("Platform/Physics/PhysicsObject")
+require("Character")
 
-class("Antagonist"):Extends( GameObject )
+class("Antagonist"):Extends( Character )
 
-function Antagonist:__init( strName )
-	local vPos = Vector:New( math.random() * 1600, math.random() * 900, 0 )
-	Antagonist.super.__init(self, strName, vPos, CirclePhysicsObject:New(self, 50))
+function Antagonist:__init( strName, world, x, y )
+	Antagonist.super.__init( self, strName, world, x, y, 70, 100, 5 )
 
-	self.physicsObject.maxSpeed = 400
-	self.physicsObject.friction = 2000
+	self.physicsCapsuleTopShape:setCategory( World.physicsCategories.character2 )
+	self.physicsCapsuleMiddleShape:setCategory( World.physicsCategories.character2 )
+	self.physicsCapsuleBottomShape:setCategory( World.physicsCategories.character2 )
 end
 
-function Antagonist:Update( dt )
-	Antagonist.super.Update( self, dt )
-
-	self.physicsObject.position.x = (self.physicsObject.position.x > 1600 and 0) or (self.physicsObject.position.x < 0 and 1600) or self.physicsObject.position.x
-	self.physicsObject.position.y = (self.physicsObject.position.y > 900 and 0) or (self.physicsObject.position.y < 0 and 900) or self.physicsObject.position.y
-	self.position:set(self.physicsObject.position)
-end
-
-function Antagonist:Draw()
+function Protagonist:ActiveDraw()
 	love.graphics.push()
-	love.graphics.translate( self.position.x, self.position.y )
 	love.graphics.setColor( 0, 255, 255 )
-	love.graphics.circle("fill", 0, 0, self.physicsObject.radius)
+	local halfWidth = self.width / 2
+	local halfHeight = self.height / 2
+	love.graphics.circle("fill", self.physicsBody:getX(), self.physicsBody:getY() - halfHeight + halfWidth, self.physicsCapsuleTopShape:getRadius(), 20)
+	love.graphics.polygon( "fill", self.physicsCapsuleMiddleShape:getPoints() )
+	love.graphics.circle("fill", self.physicsBody:getX(), self.physicsBody:getY() + halfHeight - halfWidth, self.physicsCapsuleBottomShape:getRadius(), 20)
 	love.graphics.pop()
 end

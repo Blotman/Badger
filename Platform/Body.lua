@@ -7,6 +7,11 @@ function Body:__init( strName, world, vPos, mass, inertia )
 	self.physicsBody = love.physics.newBody( world.physicsWorld, self.position.x, self.position.y, mass, insertia )
 end
 
+function Body:Delete()
+	self.physicsBody:destroy()
+	Body.super.Delete( self )
+end
+
 function Body:Update(dt)
 	self.position:set( self.physicsBody:getPosition() )
 end
