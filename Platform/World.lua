@@ -40,6 +40,21 @@ function World:Draw()
 end
 
 function World.ObjectsCollided(a, b, contactInfo)
+	local contactInfo = {
+		friction = contactInfo:getFriction(),
+		normal = Vector:New( contactInfo:getNormal() ),
+		position = Vector:New( contactInfo:getPosition() ),
+		restitution = contactInfo:getRestitution(),
+		separation = contactInfo:getSeparation(),
+		velocity = Vector:New( contactInfo:getVelocity() )
+	}
+	if a.Collided then
+		a:Collided( b, contactInfo )
+	end
+
+	if b.Collided then
+		b:Collided( a, contactInfo )
+	end
 	--[[print( a, b )
 	print( "getFriction", contactInfo:getFriction() )
 	print( "getNormal", contactInfo:getNormal() )

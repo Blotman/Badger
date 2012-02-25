@@ -18,13 +18,6 @@ function GameObject:Delete()
 	self.world:RemoveChild( self )
 end
 
-function GameObject:SetWorld( worldObject )
-	self.world = worldObject
-	for child, _ in pairs(self.children) do
-		child:SetWorld( worldObject )
-	end
-end
-
 function GameObject:AddChild( child )
 	table.insert(self.children, child)
 end

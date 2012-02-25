@@ -10,7 +10,7 @@ function Antagonist:__init( strName, world, x, y )
 	self.physicsCapsuleBottomShape:setCategory( World.physicsCategories.character2 )
 end
 
-function Protagonist:ActiveDraw()
+function Antagonist:ActiveDraw()
 	love.graphics.push()
 	love.graphics.setColor( 0, 255, 255 )
 	local halfWidth = self.width / 2

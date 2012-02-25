@@ -48,14 +48,14 @@ end
 
 function StateMachine:TransitionState( stateName )
 	if self.currentState and self.currentState.Exit then
-		currentState.Exit( self.owner )
+		self.currentState.Exit( self.owner )
 	end
 
 	self.currentStateName = stateName
 	self.currentState = self.states[self.currentStateName]
 	assert( self.currentState )
 	if self.currentState.Enter then
-		self.currentState.Enter( self.owner )
+		self.owner[self.currentState.Enter]( self.owner )
 	end
 end
 
@@ -77,13 +77,13 @@ function StateMachine:Update( dt )
 
 	assert( self.currentState )
 	if self.currentState.Update then
-		self.currentState.Update( self.owner, dt )
+		self.owner[self.currentState.Update]( self.owner, dt )
 	end
 end
 
 function StateMachine:Draw()
 	assert( self.currentState )
 	if self.currentState.Draw then
-		self.currentState.Draw( self.owner )
+		self.owner[self.currentState.Draw]( self.owner, dt )
 	end
 end

@@ -29,14 +29,14 @@ function Character:__init( strName, world, x, y, width, height, mass )
 
 	self.stateMachine = CharacterStateMachine:New( self )
 	self.stateMachine:SetStateCallbacks( "Entry",
-		Character.EntryEnter,
-		Character.EntryUpdate,
-		Character.EntryDraw,
+		"EntryEnter",
+		"EntryUpdate",
+		"EntryDraw",
 		nil )
 	self.stateMachine:SetStateCallbacks( "Active",
 		nil,
-		Character.ActiveUpdate,
-		Character.ActiveDraw,
+		"ActiveUpdate",
+		"ActiveDraw",
 		nil )
 end
 
