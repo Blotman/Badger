@@ -15,17 +15,32 @@ g_screenWidth = 1600
 g_screenHeight = 900
 
 function LoadTestWorld()
-	local world = World:New( nil, 0, 0, g_screenWidth, g_screenHeight, nil, 650 )
+	local world = World:New( nil, 0, 0, g_screenWidth, g_screenHeight, nil, 1000 )
 	--for i=1,400 do
 		--world:AddChild(Floater:New())
 	--end
 
-	Block:New( nil, world, g_screenWidth / 2, g_screenHeight / 2, 0, 0, 800, 500 )
+	Block:New(	nil, world,
+				g_screenWidth / 2, g_screenHeight / 2,
+				0, 0, 0,
+				800, 500 )
 
-	Block:New( nil, world, g_screenWidth / 2, 0, 0, 0, g_screenWidth, 1 )
-	Block:New( nil, world, g_screenWidth / 2, g_screenHeight, 0, 0, g_screenWidth, 1 )
-	Block:New( nil, world, 0, g_screenHeight / 2, 0, 0, 1, g_screenHeight )
-	Block:New( nil, world, g_screenWidth, g_screenHeight / 2, 0, 0, 1, g_screenHeight )
+	Block:New(	nil, world,
+				g_screenWidth / 2, 0,
+				0, 0, 0,
+				g_screenWidth, 1 )
+	Block:New(	nil, world,
+				g_screenWidth / 2, g_screenHeight,
+				0, 0, 0,
+				g_screenWidth, 1 )
+	Block:New(	nil, world, 0,
+				g_screenHeight / 2,
+				0, 0, 0,
+				1, g_screenHeight )
+	Block:New(	nil, world,
+				g_screenWidth, g_screenHeight / 2,
+				0, 0, 0,
+				1, g_screenHeight )
 	
 	--world:AddChild( g_block )
 	g_antagonist = Antagonist:New( nil, world, 200, 800 )
@@ -92,31 +107,14 @@ function love.update(dt)
 	--g_protagonist.physicsObject.acceleration:setLength(g_protagonist.physicsObject.friction * 2)
 
 	--g_editor:Update(dt)
-
-	local velocity = Vector:New( (	Controller.KeyState.right and 1.0 or 0.0) - (Controller.KeyState.left and 1.0 or 0.0),
-									(Controller.KeyState.down and 1.0 or 0.0) - (Controller.KeyState.up and 1.0 or 0.0), 0.0 )
-	velocity:setLength(500)
-	g_protagonist.physicsBody:applyForce( velocity.x, velocity.y )
-
-	g_timeSinceLast = g_timeSinceLast and g_timeSinceLast + dt or 0.25
-	if Controller.KeyState.attack then
-		
-	--if g_timeSinceLast > 0.01 then
-		g_count = g_count and g_count + 1 or 1
-		g_timeSinceLast = 0
-		g_projectile = Projectile:New( "bullet_" .. tostring(g_count), g_world, g_protagonist.position.x + g_protagonist.width / 2.0, g_protagonist.position.y )
-		g_projectile.physicsBody:applyImpulse( 1000, 0 )
---		end
-	end
-	
 	g_world:Update(dt)
 end
 
 function love.draw()
 	love.graphics.setRenderTarget( g_framebuffer )
+	g_world.camera.position:set( g_protagonist.position )
 	g_world:Draw()
 	--g_editor:Draw()
-
 	love.graphics.setRenderTarget()
 
 	love.graphics.setColor( 255, 255, 255 )
