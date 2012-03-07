@@ -2,13 +2,12 @@ require("Platform/Body")
 
 class("Block"):Extends( Body )
 
-function Block:__init( strName, world, x, y, mass, inertia, friction, width, height, angle )
-	local vPos = Vector:New( x, y )
-	Block.super.__init( self, strName, world, vPos, mass, inertia )
-	self.physicsShape = love.physics.newRectangleShape( self.physicsBody, 0, 0, width, height, angle )
+function Block:__init( params, world )
+	Block.super.__init( self, params, world )
+	self.physicsShape = love.physics.newRectangleShape( self.physicsBody, 0, 0, params.width, params.height, params.angle )
 	self.physicsShape:setData( self )
 	self.physicsShape:setCategory( World.physicsCategories.static )
-	self.physicsShape:setFriction( friction or 0 )
+	self.physicsShape:setFriction( params.friction or 0 )
 end
 
 function Block:Draw()

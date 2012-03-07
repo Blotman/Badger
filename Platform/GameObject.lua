@@ -3,9 +3,10 @@ require("Platform/Vector")
 
 class "GameObject"
 
-function GameObject:__init( strName, world, vPos )
-	self.name = strName
-	self.position = vPos or Vector:New()
+function GameObject:__init( params, world )
+	self.params = params
+	self.name = params.strName
+	self.position = Vector:New(params.x, params.y, params.z)
 	self.children = {}
 	self.world = world
 	world:AddChild( self )
@@ -37,45 +38,17 @@ function GameObject:Draw()
 	end
 end
 
-function GameObject:SerializeAttributes(depth)
-	local attributesTable = {}
-	SerializeHelper( self, attributesTable, {"className", "name", "position", "physicsBody"}, depth)
-	table.insert( attributesTable, string.format("\n%schildren={", Tab(depth)) )
-	for i, child in ipairs(self.children) do
-		local temp = string.format("\n%s[%s]=%s,", Tab(depth+1), tostring(i), child:Serialize(depth+1))
-		table.insert(attributesTable, temp)
-	end
-	table.insert( attributesTable, string.format("\n%s}", Tab(depth)) )
-	return attributesTable
-end
-
-function GameObject:Serialize(depth)
+function GameObject:ToXML( depth )
+	local output = {}
 	depth = depth or 0
-	local serializeData = {}
-	table.insert( serializeData, "{" )
-	table.insert( serializeData, table.concat(self:SerializeAttributes(depth+1)) )
-	table.insert( serializeData, "\n" .. Tab(depth) .. "}" )
-	return table.concat(serializeData)
-end
-
-function GameObject:Deserialize(data)
-	self.name = data.name
-	self.position:Deserialize(data.position)
-	data.position = nil
-	if data.physicsBody then
-		self.physicsBody = Class.InstantiateFromTable(data.physicsBody)
-		self.physicsBody.gameObject = self
-		data.physicsBody = nil
+	local tab1 = string.rep("\t", depth)
+	table.insert( output, string.format( [[%s<class name="%s">]], tab1, self.class.name ) )
+	depth = depth + 1
+	local tab2 = string.rep("\t", depth)
+	for name, value in pairs( self.params ) do
+		table.insert( output, string.format( [[%s<param name="%s" value="%s" type="%s" />]], tab2, name, value, type(value) ) )
 	end
-	if data.children then
-		for i, j in ipairs(data.children) do
-			self.children[i] = Class.InstantiateFromTable(j)
-		end
-		data.children = nil
-	end
-end
+	table.insert( output, string.format( [[%s</class>]], tab1 ) )
 
-function GameObject:Save(fileName)
-	local objectString = "return " .. self:Serialize(0)
-	love.filesystem.write( fileName, objectString, string.len(objectString) )
+	return table.concat(output, "\n")
 end

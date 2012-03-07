@@ -2,8 +2,11 @@ require("Character")
 
 class("Protagonist"):Extends( Character )
 
-function Protagonist:__init( strName, world, x, y )
-	Protagonist.super.__init( self, strName, world, x, y, 70, 100, 5 )
+function Protagonist:__init( params, world )
+	params.width = 70
+	params.height = 100
+	params.mass = 5
+	Protagonist.super.__init( self, params, world )
 
 	self.physicsCapsuleTopShape:setCategory( World.physicsCategories.character1 )
 	self.physicsCapsuleMiddleShape:setCategory( World.physicsCategories.character1 )
@@ -42,16 +45,26 @@ function Protagonist:Update( dt )
 	end
 
 	local adjustedGrounding = (bestGrounding > 0 and bestGrounding or 0.075)
-	local horizontalForce = adjustedGrounding * 750.0 * ((Controller.KeyState.right and 1.0 or 0.0) - (Controller.KeyState.left and 1.0 or 0.0))
+	local horizontalForce = adjustedGrounding * 1000.0 * ((Controller.KeyState.right and 1.0 or 0.0) - (Controller.KeyState.left and 1.0 or 0.0))
 	local verticalImpulse = bestGrounding * 75.0 * -(Controller.KeyState.up and 1.0 or 0.0)
 	--print( bestGrounding )
 
 	--local velocity = Vector:New( (	Controller.KeyState.right and 1.0 or 0.0) - (Controller.KeyState.left and 1.0 or 0.0),
 		--							(Controller.KeyState.down and 1.0 or 0.0) - (Controller.KeyState.up and 1.0 or 0.0), 0.0 )
 	--velocity:setLength(500)
+	local currentVelocity = Vector:New( self.physicsBody:getLinearVelocity() )
+	
+	local maxSpeed = 1000
+	local squareSpeed = currentVelocity:len2()
+	if squareSpeed > math.pow( maxSpeed, 2 ) then
+		local speedAdjust = maxSpeed / math.sqrt(squareSpeed)
+		self.physicsBody:setLinearVelocity( speedAdjust * currentVelocity.x, speedAdjust * currentVelocity.y )
+	end
+
 	self.physicsBody:setLinearDamping( bestGrounding > 0 and 10 * bestGrounding or .33 )
 	self.physicsBody:applyForce( horizontalForce, 0 )
 	self.physicsBody:applyImpulse( 0, verticalImpulse )
+	
 
 	self.timeSinceLast = self.timeSinceLast and self.timeSinceLast + dt or 0.25
 	if Controller.KeyState.attack then

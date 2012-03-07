@@ -3,11 +3,11 @@ require("Platform/StateMachine/CharacterStateMachine")
 
 class("Character"):Extends( Body )
 
-function Character:__init( strName, world, x, y, width, height, mass )
-	local vPos = Vector:New( x, y, 0 )
-	Character.super.__init( self, strName, world, vPos, mass, 0 )
-	self.width = width
-	self.height = height
+function Character:__init( params, world )
+	params.inertia = 0
+	Character.super.__init( self, params, world )
+	self.width = params.width
+	self.height = params.height
 
 	local halfWidth = self.width / 2
 	local halfHeight = self.height / 2

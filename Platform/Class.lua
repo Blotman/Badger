@@ -8,6 +8,26 @@ function Class.Define(name)
 		setmetatable(self, {__index = parent})
 	end
 
+	newClass.InstantiateFromXMLTable = function( data, parent )
+		local params = {}
+		local childrenTable = {}
+		for _, j in ipairs( data ) do
+			if j.label == "param" then
+				params[j.xarg.name] = j.xarg.type == number and tonumber( j.xarg.value ) or j.xarg.value
+			elseif j.label == "children" then
+				childrenTable = j
+			end
+		end
+
+		local instantiatedObject = newClass.New( newClass, params, parent )
+
+		for i, j in ipairs(childrenTable) do
+			InstantiateFromXMLTable( j, instantiatedObject )
+		end
+
+		return instantiatedObject
+	end
+		
 	function newClass:New(...)
 		local classInstance = {}
 		classInstance.class = self
@@ -37,26 +57,11 @@ function Class.Define(name)
 	return newClass
 end
 
-function Class.InstantiateFromTable(data)
-	local instancedObject = _G[data.class.name] and _G[data.class.name]:New()
-	if instancedObject.Deserialize then
-		instancedObject:Deserialize(data)
-	end
-	data.class.name = nil
-
-	for i, j in pairs(data) do
-		if type(j) == "table" and j.class.name then
-			instancedObject[i] = Class.InstantiateFromTable(j)
-		else
-			instancedObject[i] = j
-		end
-		data[i] = nil
+function Class.InstantiateFromXMLTable(data, parent)
+	local instantiatedObject = nil
+	if data.xarg and data.xarg.name then
+		instantiatedObject = _G[data.xarg.name].InstantiateFromXMLTable(data, parent)
 	end
 
-	return instancedObject
-end
-
-function Class.InstantiateFromFile(fileName)
-	local instanceTable = love.filesystem.load( fileName )()
-	return Class.InstantiateFromTable(instanceTable)
+	return instantiatedObject
 end

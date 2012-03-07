@@ -10,27 +10,34 @@ World.physicsCategories.projectile2 = 3
 World.physicsCategories.character1 = 4
 World.physicsCategories.character2 = 5
 
-function World:__init( strName, xExtent1, yExtent1, xExtent2, yExtent2, xGravity, yGravity )
-	self.name = strName
-	self.physicsWorld = love.physics.newWorld( xExtent1, yExtent1, xExtent2, yExtent2, xGravity, yGravity, false )
+function World:__init( params )
+	self.params = params
+	self.name = params.strName
+	self.physicsWorld = love.physics.newWorld( params.xExtent1, params.yExtent1, params.xExtent2, params.yExtent2, params.xGravity, params.yGravity, false )
 	self.physicsWorld:setCallbacks( World.ObjectsCollided, World.ObjectsTouching, World.ObjectsUncollided )
 	self.children = {}
+	self.childrenIndices = {}
 	self.camera = {}
 	self.camera.position = Vector:New( 0, 0 )
 end
 
 function World:AddChild( child )
-	self.children[child] = true
+	table.insert( self.children, child )
+	self.childrenIndices[child] = #self.children
 end
 
 function World:RemoveChild( child )
-	self.children[child] = nil
+	local index = self.childrenIndices[child]
+	if index ~= nil then
+		table.remove(self.children, index)
+	end
+	self.childrenIndices[child] = nil
 end
 
 function World:Update( dt )
 	self.physicsWorld:update( dt )
 
-	for child, _ in pairs(self.children) do
+	for _, child in pairs(self.children) do
 		child:Update(dt)
 	end
 end
@@ -38,7 +45,7 @@ end
 function World:Draw()
 	love.graphics.push()
 	love.graphics.translate( 800 - self.camera.position.x, 450 - self.camera.position.y )
-	for child, _ in pairs(self.children) do
+	for _, child in pairs(self.children) do
 		child:Draw()
 	end
 	love.graphics.pop()
@@ -96,4 +103,29 @@ function World.ObjectsUncollided(a, b, contactInfo)
 	if b.Uncollided then
 		b:Uncollided( a, contactInfo )
 	end
+end
+
+function World:ToXML( depth )
+	local output = {}
+	depth = depth or 0
+	local tab1 = string.rep("\t", depth)
+	table.insert( output, string.format( [[%s<class name="%s">]], tab1, self.class.name ) )
+	depth = depth + 1
+	local tab2 = string.rep("\t", depth)
+	for name, value in pairs( self.params ) do
+		table.insert( output, string.format( [[%s<param name="%s" value="%s" type="%s" />]], tab2, name, value, type(value) ) )
+	end
+	table.insert( output, string.format( [[%s<children>]], tab2 ) )
+	for _, child in pairs( self.children ) do
+		table.insert( output, child:ToXML( depth+1 ) )
+	end
+	table.insert( output, string.format( [[%s</children>]], tab2 ) )
+	table.insert( output, string.format( [[%s</class>]], tab1 ) )
+
+	return table.concat(output, "\n")
+end
+
+function World:Save( fileName )
+	local worldXML = self:ToXML( depth )
+	love.filesystem.write( fileName, worldXML, string.len(worldXML) )
 end

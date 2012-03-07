@@ -15,35 +15,70 @@ g_screenWidth = 1600
 g_screenHeight = 900
 
 function LoadTestWorld()
-	local world = World:New( nil, 0, 0, g_screenWidth, g_screenHeight, nil, 1000 )
+	local world = World:New( {strName = "World_0",
+		xExtent1 = 0,
+		yExtent1 = 0,
+		xExtent2 = g_screenWidth,
+		yExtent2 = g_screenHeight,
+		xGravity = nil,
+		yGravity = 1000} )
 	--for i=1,400 do
 		--world:AddChild(Floater:New())
 	--end
 
-	Block:New(	nil, world,
-				g_screenWidth / 2, g_screenHeight / 2,
-				0, 0, 0,
-				800, 500 )
+	Block:New( { 	strName = "Block_0",
+					x = g_screenWidth / 2,
+					y = g_screenHeight / 2,
+					mass = 0,
+					inertia = 0,
+					friction = 0,
+					width = 800,
+					height = 500 }, world )
 
-	Block:New(	nil, world,
-				g_screenWidth / 2, 0,
-				0, 0, 0,
-				g_screenWidth, 1 )
-	Block:New(	nil, world,
-				g_screenWidth / 2, g_screenHeight,
-				0, 0, 0,
-				g_screenWidth, 1 )
-	Block:New(	nil, world, 0,
-				g_screenHeight / 2,
-				0, 0, 0,
-				1, g_screenHeight )
-	Block:New(	nil, world,
-				g_screenWidth, g_screenHeight / 2,
-				0, 0, 0,
-				1, g_screenHeight )
-	
+	Block:New(	{ 	strName = "Block_1",
+					x = g_screenWidth / 2,
+					y = 0,
+					mass = 0,
+					inertia = 0,
+					friction = 0,
+					width = g_screenWidth,
+					height = 1 }, world )
+
+	Block:New(	{ 	strName = "Block_2",
+					x = g_screenWidth / 2,
+					y = g_screenHeight,
+					mass = 0,
+					inertia = 0,
+					friction = 0,
+					width = g_screenWidth,
+					height = 1 }, world )
+
+	Block:New(	{ 	strName = "Block_3",
+					x = 0,
+					y = g_screenHeight / 2,
+					mass = 0,
+					inertia = 0,
+					friction = 0,
+					width = 1,
+					height = g_screenHeight }, world )
+
+	Block:New(	{ 	strName = "Block_4",
+					x = g_screenWidth,
+					y = g_screenHeight / 2,
+					mass = 0,
+					inertia = 0,
+					friction = 0,
+					width = 1,
+					height = g_screenHeight }, world )
+
 	--world:AddChild( g_block )
-	g_antagonist = Antagonist:New( nil, world, 200, 800 )
+	g_antagonist = Antagonist:New(	{ 	strName = "Antagonist_0",
+										x = 200,
+										y = 800 }, world )
+
+	g_protagonist = Protagonist:New( { 	strName = "Protagonist_0",
+										x = 100,
+										y = 100 }, world )
 	return world
 end
 
@@ -51,16 +86,15 @@ function love.load(arg)
 	love.graphics.setMode( g_screenWidth, g_screenHeight, false, 0 )
 	------------------------------------------------------
 
-	g_world = LoadTestWorld()
+	--g_world = LoadTestWorld()
 	--g_editor = Editor:New( nil, g_world, 0, 0, g_screenWidth, g_screenHeight )
 	--g_world:Save("Wubba.txt")
 	-- #####################################################
 
-	--g_world = Class.InstantiateFromFile("Wubba.txt")
+	g_world = LoadFromXMLFile("Wubba.txt")
 	
 	-------------------------------------------------------
 	--g_world:Save( "test.txt" )
-	g_protagonist = Protagonist:New( nil, g_world, 100, 100 )
 	--g_world:AddChild( g_protagonist )
 
 	g_framebuffer = love.graphics.newFramebuffer( g_screenWidth, g_screenHeight )
@@ -112,7 +146,7 @@ end
 
 function love.draw()
 	love.graphics.setRenderTarget( g_framebuffer )
-	g_world.camera.position:set( g_protagonist.position )
+	g_world.camera.position:set( g_screenWidth / 2.0, g_screenHeight / 2.0 )
 	g_world:Draw()
 	--g_editor:Draw()
 	love.graphics.setRenderTarget()

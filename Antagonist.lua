@@ -2,8 +2,11 @@ require("Character")
 
 class("Antagonist"):Extends( Character )
 
-function Antagonist:__init( strName, world, x, y )
-	Antagonist.super.__init( self, strName, world, x, y, 70, 100, 5 )
+function Antagonist:__init( params, world )
+	params.width = 70
+	params.height = 100
+	params.mass = 5
+	Antagonist.super.__init( self,  params, world )
 
 	self.physicsCapsuleTopShape:setCategory( World.physicsCategories.character2 )
 	self.physicsCapsuleMiddleShape:setCategory( World.physicsCategories.character2 )
