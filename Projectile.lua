@@ -1,13 +1,14 @@
-require("Platform/Body")
+require("Platform/GameObject")
 require("Platform/StateMachine/CharacterStateMachine")
 
-class("Projectile"):Extends( Body )
+class("Projectile"):Extends( GameObject )
 
 --Projectile.pool = {}
 
-function Projectile:__init( strName, world, x, y )
-	local vPos = Vector:New( x, y, 0 )
-	Projectile.super.__init( self, strName, world, vPos, 5, 0 )
+function Projectile:__init( params, world )
+	params.mass = 5
+	params.inertia = 0
+	Projectile.super.__init( self, params, world )
 	self.physicsShape = love.physics.newCircleShape( self.physicsBody, 0, 0, .05 )
 	self.physicsShape:setData( self )
 	self.physicsShape:setSensor( true )

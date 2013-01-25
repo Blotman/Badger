@@ -1,11 +1,11 @@
 require("Platform/Vector")
 require("Platform/Util")
 
-class "PhysicsObject"
+class("PhysicsObject")
 
 function PhysicsObject:__init( gameObject )
 	self.gameObject = gameObject
-	self.position = Vector:New(0, 0, 0)
+	self.position = Vector:New( gameObject.position.x, gameObject.position.y, gameObject.position.z)
 	self.lastPosition = nil
 	self.velocity = Vector:New(0, 0, 0)
 	self.acceleration = Vector:New(0, 0, 0)
@@ -15,36 +15,8 @@ function PhysicsObject:__init( gameObject )
 	self.xExtent2 = 5
 	self.yExtent1 = -5
 	self.yExtent2 = 5
+	self.gravity = true
 	self.collision = true
-end
-
-function PhysicsObject:UpdatePosition( dt )
-	self.velocity:add( self.acceleration:_mul( dt ) )
-	local speed = self.velocity:len()
-	if speed > 0 then
-		local newSpeed = nil
-		if self.friction > 0 then
-			newSpeed = (speed < self.friction * dt and 0) or (speed - self.friction * dt)
-		end
-
-		if self.maxSpeed >= 0 then
-			if speed > self.maxSpeed then
-				newSpeed = self.maxSpeed
-			end
-		end
-
-		if newSpeed ~= nil then
-			self.velocity:mul( newSpeed / speed )
-		end
-	end
-
-	local lastPosition = Vector:New( self.position )
-	self.position:add( self.velocity:_mul( dt ) )
-
-	if self.world and self.collision and (self.lastPosition == nil or self.lastPosition:notEquals(self.position)) then
-		self.world:ObjectMoved( self )
-	end
-	self.lastPosition = lastPosition
 end
 
 function PhysicsObject:VisitWorld()
@@ -68,7 +40,7 @@ function PhysicsObject:CollidedWith( testPhysicsObject )
 	local rect_y1 = self.position.y + self.yExtent1
 	local rect_x2 = self.position.x + self.xExtent2
 	local rect_y2 = self.position.y + self.yExtent2
-	
+
 	if testPhysicsObject:IsA( CirclePhysicsObject ) then
 		local circle_x = testPhysicsObject.position.x
 		local circle_y = testPhysicsObject.position.y
@@ -80,7 +52,7 @@ function PhysicsObject:CollidedWith( testPhysicsObject )
 		local rect2_x2 = testPhysicsObject.position.x + testPhysicsObject.xExtent2
 		local rect2_y2 = testPhysicsObject.position.y + testPhysicsObject.yExtent2
 
-		RectRectIntersect( rect_x1, rect_y1, rect_x2, rect_y2, rect2_x1, rect2_y1, rect2_x2, rect2_y2 )
+		return RectRectIntersect( rect_x1, rect_y1, rect_x2, rect_y2, rect2_x1, rect2_y1, rect2_x2, rect2_y2 )
 	end
 end
 
@@ -91,7 +63,6 @@ function PhysicsObject:GetAppliedCollision( dt )
 	if visitedObjects then
 		local collidedDt = dt
 		-- Determine which of the visited objects actually collided
-		
 		-- For dynamic to static interaction
 		--   Get tangent vector of collision point
 		--   Move position of dynamic object perpendicular away from tangent until not collided
@@ -115,10 +86,7 @@ function PhysicsObject:DrawQuadNodes()
 										node.xExtent1, node.yExtent2})
 	end
 	
-	love.graphics.polygon("line", {	self.position.x + self.xExtent1, self.position.y + self.yExtent1,
-									self.position.x + self.xExtent2, self.position.y + self.yExtent1,
-									self.position.x + self.xExtent2, self.position.y + self.yExtent2,
-									self.position.x + self.xExtent1, self.position.y + self.yExtent2})
+	love.graphics.polygon("line", self:GetPoints() )
 end
 
 function PhysicsObject:Serialize(depth)
@@ -137,4 +105,51 @@ end
 
 function PhysicsObject:PointCast( x, y )
 	return PointRectIntersect( x, y, self:GetExtents() )
+end
+
+function PhysicsObject:GetPoints()
+	return {	self.position.x + self.xExtent1, self.position.y + self.yExtent1,
+									self.position.x + self.xExtent2, self.position.y + self.yExtent1,
+									self.position.x + self.xExtent2, self.position.y + self.yExtent2,
+									self.position.x + self.xExtent1, self.position.y + self.yExtent2}
+end
+
+function PhysicsObject:GetX()
+	return self.position.x
+end
+
+function PhysicsObject:GetY()
+	return self.position.y
+end
+
+function PhysicsObject:ApplyForce( forceVector )
+	self.acceleration:add( forceVector )
+end
+
+function PhysicsObject:UpdateVelocity( dt )
+	if self.world ~= nil and self.gravity then
+		self.velocity:add( self.world.gravity:_mul( dt ) )
+	end
+
+	self.velocity:add( self.acceleration:_mul( dt ) )
+	
+	local speed2 = self.velocity:len2()
+	if speed2 > 0 and self.maxSpeed >= 0 then
+		local maxSpeed2 = self.maxSpeed * self.maxSpeed
+		if speed2 > maxSpeed2 then
+			local speed = math.sqrt(speed2)
+			self.velocity:mul( self.maxSpeed / speed )
+		end
+	end
+end
+
+function PhysicsObject:UpdatePosition( dt )
+	local lastPosition = Vector:New( self.position )
+	self.position:add( self.velocity:_mul( dt ) )
+
+	if self.world and self.collision and (self.lastPosition == nil or self.lastPosition:notEquals(self.position)) then
+		self.world:ObjectMoved( self )
+	end
+
+	self.lastPosition = lastPosition
 end

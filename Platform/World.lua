@@ -1,5 +1,4 @@
 require("Platform/GameObject")
-require("Platform/Physics/WorldPhysicsObject")
 
 class( "World" )
 
@@ -13,8 +12,6 @@ World.physicsCategories.character2 = 5
 function World:__init( params )
 	self.params = params
 	self.name = params.strName
-	self.physicsWorld = love.physics.newWorld( params.xExtent1, params.yExtent1, params.xExtent2, params.yExtent2, params.xGravity, params.yGravity, false )
-	self.physicsWorld:setCallbacks( World.ObjectsCollided, World.ObjectsTouching, World.ObjectsUncollided )
 	self.children = {}
 	self.childrenIndices = {}
 	self.camera = {}
@@ -35,7 +32,9 @@ function World:RemoveChild( child )
 end
 
 function World:Update( dt )
-	self.physicsWorld:update( dt )
+	if self.physicsObject ~= nil then
+		self.physicsObject:Update(dt)
+	end
 
 	for _, child in pairs(self.children) do
 		child:Update(dt)
@@ -128,4 +127,9 @@ end
 function World:Save( fileName )
 	local worldXML = self:ToXML( depth )
 	love.filesystem.write( fileName, worldXML, string.len(worldXML) )
+end
+
+function World:SetPhysicsObject( worldPhysicsObject )
+	self.physicsObject = worldPhysicsObject
+	self.physicsObject.worldObject = self
 end

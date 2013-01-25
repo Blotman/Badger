@@ -9,6 +9,7 @@ function GameObject:__init( params, world )
 	self.position = Vector:New(params.x, params.y, params.z)
 	self.children = {}
 	self.world = world
+
 	world:AddChild( self )
 end
 
@@ -51,4 +52,11 @@ function GameObject:ToXML( depth )
 	table.insert( output, string.format( [[%s</class>]], tab1 ) )
 
 	return table.concat(output, "\n")
+end
+
+function GameObject:SetPhysicsObject( physicsObject )
+	self.physicsObject = physicsObject
+	self.physicsObject.gameObject = self
+	
+	self.world.physicsObject:AddChild(self.physicsObject)
 end

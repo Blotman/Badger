@@ -3,17 +3,17 @@ require( "Platform/UI/PropertiesPane" )
 
 class( "Editor" )
 
-function Editor:__init( strName, world, xExtent1, yExtent1, xExtent2, yExtent2 )
+function Editor:__init( params, world )
 	self.world = world
-	self.xExtent1 = xExtent1
-	self.yExtent1 = yExtent1
-	self.xExtent2 = xExtent2
-	self.yExtent2 = yExtent2
+	self.xExtent1 = params.xExtent1
+	self.yExtent1 = params.yExtent1
+	self.xExtent2 = params.xExtent2
+	self.yExtent2 = params.yExtent2
 	self.selectedObject = nil
 	self.heldObject = nil
 	self.mouseClicked = Vector:New( -1, -1 )
 	self.objectClickedPosition = Vector:New( -1, -1 )
-	self.propertiesPane = PropertiesPane:New( nil, 0, 0, 250, 500 )
+	self.propertiesPane = PropertiesPane:New( "", 0, 0, 250, 500 )
 end
 
 function Editor:Update( dt )

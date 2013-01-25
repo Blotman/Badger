@@ -1,19 +1,19 @@
-require("Platform/Body")
+require("Platform/GameObject")
+require("Platform/Physics/CapsulePhysicsObject")
 require("Platform/StateMachine/CharacterStateMachine")
 
-class("Character"):Extends( Body )
+class("Character"):Extends( GameObject )
 
-function Character:__init( params, world )
-	params.inertia = 0
-	Character.super.__init( self, params, world )
+function Character:__init( params, world, physicsObject )
+	
 	self.width = params.width
 	self.height = params.height
 
-	local halfWidth = self.width / 2
+	--[[local halfWidth = self.width / 2
 	local halfHeight = self.height / 2
-	self.physicsCapsuleTopShape = love.physics.newCircleShape( self.physicsBody, 0, -halfHeight + halfWidth, halfWidth )
-	self.physicsCapsuleMiddleShape = love.physics.newRectangleShape( self.physicsBody, 0, 0, self.width, self.height - self.width )
-	self.physicsCapsuleBottomShape = love.physics.newCircleShape( self.physicsBody, 0, halfHeight - halfWidth, halfWidth )
+	self.physicsCapsuleTopShape = love.physics.newCircleShape( self.physicsObject, 0, -halfHeight + halfWidth, halfWidth )
+	self.physicsCapsuleMiddleShape = love.physics.newRectangleShape( self.physicsObject, 0, 0, self.width, self.height - self.width )
+	self.physicsCapsuleBottomShape = love.physics.newCircleShape( self.physicsObject, 0, halfHeight - halfWidth, halfWidth )
 
 	self.physicsCapsuleTopShape:setData( self )
 	self.physicsCapsuleMiddleShape:setData( self )
@@ -26,7 +26,7 @@ function Character:__init( params, world )
 	self.physicsCapsuleTopShape:setFriction( 0 )
 	self.physicsCapsuleMiddleShape:setFriction( 0 )
 	self.physicsCapsuleBottomShape:setFriction( 0 )
-
+--]]
 	self.stateMachine = CharacterStateMachine:New( self )
 	self.stateMachine:SetStateCallbacks( "Entry",
 		"EntryEnter",
@@ -38,6 +38,8 @@ function Character:__init( params, world )
 		"ActiveUpdate",
 		"ActiveDraw",
 		nil )
+
+	Character.super.__init( self, params, world )
 end
 
 function Character:Update( dt )
@@ -53,13 +55,13 @@ function Character:Draw()
 end
 
 function Character:EntryEnter()
-	self.enterRadius = 0
+	self.enterDuration = 2
+	self.enterElapsed = 0
 end
 
 function Character:EntryUpdate( dt )
-	self.enterRadius = self.enterRadius + 25.0 * dt
-	if self.enterRadius > 25 then
-		self.enterRadius = 25
+	self.enterElapsed = self.enterElapsed + dt
+	if self.enterElapsed >= self.enterDuration then
 		self.stateMachine:TriggerEvent("Next")
 	end
 end
@@ -67,7 +69,8 @@ end
 function Character:EntryDraw()
 	love.graphics.push()
 	love.graphics.setColor( 128, 128, 128 )
-	love.graphics.circle("fill", self.physicsBody:getX(), self.physicsBody:getY(), self.enterRadius, 20)
+	love.graphics.translate( self.physicsObject:GetX(), self.physicsObject:GetY() )
+	self.physicsObject:Draw()
 	love.graphics.pop()
 end
 
@@ -77,10 +80,7 @@ end
 function Character:ActiveDraw()
 	love.graphics.push()
 	love.graphics.setColor( 255, 128, 128 )
-	local halfWidth = self.width / 2
-	local halfHeight = self.height / 2
-	love.graphics.circle("fill", self.physicsBody:getX(), self.physicsBody:getY() - halfHeight + halfWidth, self.physicsCapsuleTopShape:getRadius(), 20)
-	love.graphics.polygon( "fill", self.physicsCapsuleMiddleShape:getPoints() )
-	love.graphics.circle("fill", self.physicsBody:getX(), self.physicsBody:getY() + halfHeight - halfWidth, self.physicsCapsuleBottomShape:getRadius(), 20)
+	love.graphics.translate( self.physicsObject:GetX(), self.physicsObject:GetY() )
+	self.physicsObject:Draw()
 	love.graphics.pop()
 end

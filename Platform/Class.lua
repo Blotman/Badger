@@ -33,12 +33,15 @@ function Class.Define(name)
 		classInstance.class = self
 		classInstance.IsA = function( self, classType )
 			local retVal = false
-			while classType do
-				if self.class == classType then
-					retVal = true
-					break
-				else
-					classType = classType.super
+			local selfClass = self.class
+			if classType then
+				while selfClass do
+					if selfClass == classType then
+						retVal = true
+						break
+					else
+						selfClass = selfClass.super
+					end
 				end
 			end
 			

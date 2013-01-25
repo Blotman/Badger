@@ -2,13 +2,15 @@ require("Platform/GameObject")
 
 class("Body"):Extends( GameObject )
 
-function Body:__init( params, world )
+function Body:__init( params, world, physicsObject )
 	Body.super.__init( self, params, world )
-	self.physicsBody = love.physics.newBody( world.physicsWorld, self.position.x, self.position.y, params.mass, params.insertia )
+	self.physicsObject = physicsObject
 end
 
 function Body:Delete()
-	self.physicsBody:destroy()
+	if physicsObject ~= nil then
+		self.physicsObject:destroy()
+	end
 	Body.super.Delete( self )
 end
 

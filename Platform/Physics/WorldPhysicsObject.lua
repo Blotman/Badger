@@ -1,11 +1,9 @@
 require("Platform/Util")
 require("Platform/Physics/PhysicsObject")
 
-class( "WorldPhysicsObject" ):Extends( PhysicsObject )
+class( "WorldPhysicsObject" )
 
-function WorldPhysicsObject:__init( gameObject, quadtreeDepth, xExtent1, yExtent1, xExtent2, yExtent2 )
-	WorldPhysicsObject.super.__init( self, gameObject )
-
+function WorldPhysicsObject:__init( quadtreeDepth, xExtent1, yExtent1, xExtent2, yExtent2 )
 	self.children = {}
 	self.staticChildren = {}
 	self.otherChildren = {}
@@ -16,6 +14,8 @@ function WorldPhysicsObject:__init( gameObject, quadtreeDepth, xExtent1, yExtent
 	self.xExtent2 = xExtent2
 	self.yExtent1 = yExtent1
 	self.yExtent2 = yExtent2
+
+	self.gravity = Vector:New( 0, 10, 0 )
 
 	self:PopulateTreeNode( self.quadTree, self.quadTreeDepth, xExtent1, yExtent1, xExtent2, yExtent2 )
 end
@@ -221,10 +221,20 @@ function WorldPhysicsObject:ObjectMoved( physicsObject )
 end
 
 function WorldPhysicsObject:Update( dt )
+
+	-- apply forces
+	
+	for child, _ in pairs( self.children ) do
+		child:UpdateVelocity( dt )
+	end
+	
 	for child, _ in pairs( self.children ) do
 		child:UpdatePosition( dt )
 	end
 
+	-- check collision
+	
+	-- update collided positions and trajectories
 	local appliedCollisionTable = {}
 	for child, _ in pairs( self.children ) do
 		appliedCollisionTable[child] = child:GetAppliedCollision( dt )

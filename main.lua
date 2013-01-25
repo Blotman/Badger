@@ -4,6 +4,7 @@ require("Platform/Mouse")
 require("Platform/Editor")
 require("Platform/World")
 require("Platform/Physics/PhysicsObject")
+require("Platform/Physics/WorldPhysicsObject")
 
 require("Protagonist")
 require("Antagonist")
@@ -22,19 +23,22 @@ function LoadTestWorld()
 		yExtent2 = g_screenHeight,
 		xGravity = nil,
 		yGravity = 1000} )
+
+	local worldPhysicsObject = WorldPhysicsObject:New(8, -3000, -2000, 3000, 2000)
+	world:SetPhysicsObject( worldPhysicsObject )
 	--for i=1,400 do
 		--world:AddChild(Floater:New())
 	--end
 
 	Block:New( { 	strName = "Block_0",
 					x = g_screenWidth / 2,
-					y = g_screenHeight / 2,
+					y = g_screenHeight * 3 / 4,
 					mass = 0,
 					inertia = 0,
 					friction = 0,
 					width = 800,
 					height = 500 }, world )
-
+--[[
 	Block:New(	{ 	strName = "Block_1",
 					x = g_screenWidth / 2,
 					y = 0,
@@ -70,15 +74,17 @@ function LoadTestWorld()
 					friction = 0,
 					width = 1,
 					height = g_screenHeight }, world )
-
+--]]
 	--world:AddChild( g_block )
-	g_antagonist = Antagonist:New(	{ 	strName = "Antagonist_0",
+	--[[g_antagonist = Antagonist:New(	{ 	strName = "Antagonist_0",
 										x = 200,
-										y = 800 }, world )
+										y = 800 }, world )--]]
 
 	g_protagonist = Protagonist:New( { 	strName = "Protagonist_0",
-										x = 100,
-										y = 100 }, world )
+										x = 800,
+										y = 500 }, world )
+	g_protagonist:SetPhysicsObject( CapsulePhysicsObject:New( g_protagonist ) )
+
 	return world
 end
 
@@ -86,18 +92,18 @@ function love.load(arg)
 	love.graphics.setMode( g_screenWidth, g_screenHeight, false, 0 )
 	------------------------------------------------------
 
-	--g_world = LoadTestWorld()
-	--g_editor = Editor:New( nil, g_world, 0, 0, g_screenWidth, g_screenHeight )
+	g_world = LoadTestWorld()
+	--g_world = LoadFromXMLFile("Wubba.txt")
+	--[[g_editor = Editor:New( {	xExtent1 = 0,
+								yExtent1 = 0,
+								xExtent2 = g_screenWidth,
+								yExtent2 = g_screenHeight }, g_world )--]]
 	--g_world:Save("Wubba.txt")
 	-- #####################################################
-
-	g_world = LoadFromXMLFile("Wubba.txt")
 	
 	-------------------------------------------------------
-	--g_world:Save( "test.txt" )
-	--g_world:AddChild( g_protagonist )
 
-	g_framebuffer = love.graphics.newFramebuffer( g_screenWidth, g_screenHeight )
+	g_canvas = love.graphics.newCanvas( g_screenWidth, g_screenHeight )
 end
 
 function love.keypressed(key, unicode)
@@ -145,12 +151,17 @@ function love.update(dt)
 end
 
 function love.draw()
-	love.graphics.setRenderTarget( g_framebuffer )
+	love.graphics.setCanvas( g_canvas )
+	--love.graphics.setColor( 255, 255, 255 )
+	love.graphics.clear()
 	g_world.camera.position:set( g_screenWidth / 2.0, g_screenHeight / 2.0 )
-	g_world:Draw()
-	--g_editor:Draw()
-	love.graphics.setRenderTarget()
 
-	love.graphics.setColor( 255, 255, 255 )
-	love.graphics.draw(g_framebuffer, 0, 0, 0, 1, 1)
+	g_world:Draw()
+	g_protagonist.physicsObject:DrawQuadNodes()
+
+	love.graphics.setCanvas()
+	--g_editor:Draw()
+
+	
+	love.graphics.draw(g_canvas, 0, 0, 0, 1, 1)
 end
